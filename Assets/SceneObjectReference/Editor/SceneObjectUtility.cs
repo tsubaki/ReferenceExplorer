@@ -13,7 +13,7 @@ namespace terasurware
 		{
 			typeof( Mesh), typeof( Material), typeof(MeshFilter), typeof(MeshRenderer),
 			typeof(string), typeof(SpriteRenderer), typeof(ParticleSystem), typeof(Renderer),
-			typeof(ParticleSystemRenderer), typeof(Animator)
+			typeof(ParticleSystemRenderer), typeof(Animator), typeof(SkinnedMeshRenderer), typeof(NavMesh)
 		};
 
 		static readonly string[] ignoreMember =
@@ -23,7 +23,7 @@ namespace terasurware
 			"constantForce", "gameObject", "guiText", "guiTexture",
 			"hingeJoint", "networkView", "particleSystem", "renderer",
 			"tag", "transform", "hideFlags", "name", "audio", "collider2D", "collider", "material", "mesh",
-			"Material", "material", "Color", "maxVolume", "minVolume", "rolloffFactor"
+			"Material", "material", "Color", "maxVolume", "minVolume", "rolloffFactor", "GetRemainingDistance",
 		};
 
 
@@ -168,7 +168,7 @@ namespace terasurware
 						
 					AddObject(item, objectList, false);
 
-				}catch (System.Exception e){				}
+				}catch{				}
 			}
 		}
 

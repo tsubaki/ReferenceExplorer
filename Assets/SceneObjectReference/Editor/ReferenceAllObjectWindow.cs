@@ -72,7 +72,8 @@ public class ReferenceAllObjectWindow : EditorWindow
 		}
 	}
 
-	void Update ()
+	void OnSelectionChange ()
+	// void Update()
 	{
 
 		if (EditorApplication.isPaused || !EditorApplication.isPlaying) {
@@ -104,6 +105,7 @@ public class ReferenceAllObjectWindow : EditorWindow
 		if (EditorApplication.isPlaying && !EditorApplication.isPaused) {
 			if (GUILayout.Button ("pause")) {
 				EditorApplication.isPaused = true;
+				UpdateList();
 			}
 			return;
 		}
@@ -151,7 +153,10 @@ public class ReferenceAllObjectWindow : EditorWindow
 				
 				GUILayout.BeginHorizontal ();
 				GUILayout.Label (EditorGUIUtility.ObjectContent (null, typeof(ReferenceObject)).image, GUILayout.Height (16), GUILayout.Width (16));
-				GUILayout.Label (msg);
+				if( GUILayout.Button(msg, styles) )
+				{
+					EditorGUIUtility.PingObject(targetObject);
+				}
 				GUILayout.EndHorizontal ();
 			}
 		} catch {
