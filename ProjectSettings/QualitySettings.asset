@@ -4,7 +4,7 @@
 QualitySettings:
   m_ObjectHideFlags: 0
   serializedVersion: 5
-  m_CurrentQuality: 3
+  m_CurrentQuality: 4
   m_QualitySettings:
   - serializedVersion: 2
     name: Fastest
@@ -24,7 +24,11 @@ QualitySettings:
     lodBias: .300000012
     maximumLODLevel: 0
     particleRaycastBudget: 4
-    excludedTargetPlatforms: []
+    excludedTargetPlatforms:
+    - Web
+    - Standalone
+    - Android
+    - FlashPlayer
   - serializedVersion: 2
     name: Fast
     pixelLightCount: 0
@@ -43,7 +47,11 @@ QualitySettings:
     lodBias: .400000006
     maximumLODLevel: 0
     particleRaycastBudget: 16
-    excludedTargetPlatforms: []
+    excludedTargetPlatforms:
+    - Web
+    - FlashPlayer
+    - Android
+    - Standalone
   - serializedVersion: 2
     name: Simple
     pixelLightCount: 1
@@ -65,7 +73,7 @@ QualitySettings:
     excludedTargetPlatforms: []
   - serializedVersion: 2
     name: Good
-    pixelLightCount: 2
+    pixelLightCount: 4
     shadows: 2
     shadowResolution: 1
     shadowProjection: 1
@@ -77,35 +85,35 @@ QualitySettings:
     antiAliasing: 0
     softParticles: 0
     softVegetation: 1
-    vSyncCount: 1
+    vSyncCount: 0
     lodBias: 1
     maximumLODLevel: 0
     particleRaycastBudget: 256
     excludedTargetPlatforms: []
   - serializedVersion: 2
     name: Beautiful
-    pixelLightCount: 3
-    shadows: 2
+    pixelLightCount: 6
+    shadows: 1
     shadowResolution: 2
     shadowProjection: 1
     shadowCascades: 2
     shadowDistance: 70
     blendWeights: 4
     textureQuality: 0
-    anisotropicTextures: 2
+    anisotropicTextures: 1
     antiAliasing: 2
     softParticles: 1
     softVegetation: 1
-    vSyncCount: 1
+    vSyncCount: 0
     lodBias: 1.5
     maximumLODLevel: 0
     particleRaycastBudget: 1024
     excludedTargetPlatforms: []
   - serializedVersion: 2
     name: Fantastic
-    pixelLightCount: 4
+    pixelLightCount: 8
     shadows: 2
-    shadowResolution: 2
+    shadowResolution: 3
     shadowProjection: 1
     shadowCascades: 4
     shadowDistance: 150
@@ -120,4 +128,9 @@ QualitySettings:
     maximumLODLevel: 0
     particleRaycastBudget: 4096
     excludedTargetPlatforms: []
-  m_PerPlatformDefaultQuality: {}
+  m_PerPlatformDefaultQuality:
+    Android: 3
+    FlashPlayer: 3
+    Standalone: 4
+    Web: 4
+    iPhone: 2

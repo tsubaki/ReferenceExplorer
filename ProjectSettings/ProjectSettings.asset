@@ -10,20 +10,18 @@ PlayerSettings:
   targetGlesGraphics: 1
   targetResolution: 0
   accelerometerFrequency: 60
-  companyName: DefaultCompany
-  productName: _2D v3
+  companyName: Unity Technologies
+  productName: Stealth
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   defaultScreenWidth: 1024
   defaultScreenHeight: 768
-  defaultScreenWidthWeb: 960
-  defaultScreenHeightWeb: 600
-  m_RenderingPath: 1
-  m_MobileRenderingPath: 1
+  defaultScreenWidthWeb: 1000
+  defaultScreenHeightWeb: 640
+  m_RenderingPath: 2
   m_ActiveColorSpace: 0
   m_MTRendering: 1
-  m_MobileMTRendering: 0
-  m_UseDX11: 0
+  m_UseDX11: 1
   iosShowActivityIndicatorOnLoading: -1
   androidShowActivityIndicatorOnLoading: -1
   displayResolutionDialog: 1
@@ -36,7 +34,7 @@ PlayerSettings:
   use24BitDepthBuffer: 0
   defaultIsFullScreen: 1
   defaultIsNativeResolution: 1
-  runInBackground: 0
+  runInBackground: 1
   captureSingleScreen: 0
   Override IPod Music: 0
   Prepare IOS For Recording: 0
@@ -44,10 +42,9 @@ PlayerSettings:
   usePlayerLog: 1
   stripPhysics: 0
   forceSingleInstance: 0
-  resizableWindow: 0
+  resizableWindow: 1
   useMacAppStoreValidation: 0
   gpuSkinning: 1
-  xboxPIXTextureCapture: 0
   xboxEnableAvatar: 0
   xboxEnableKinect: 0
   xboxEnableKinectAutoTracking: 0
@@ -55,7 +52,6 @@ PlayerSettings:
   macFullscreenMode: 2
   xboxSpeechDB: 0
   xboxEnableHeadOrientation: 0
-  xboxEnableGuest: 0
   wiiHio2Usage: -1
   wiiLoadingScreenRectPlacement: 0
   wiiLoadingScreenBackground: {r: 1, g: 1, b: 1, a: 1}
@@ -74,10 +70,10 @@ PlayerSettings:
     16:9: 1
     Others: 1
   iPhoneBundleIdentifier: com.Company.ProductName
-  productGUID: 3a8984573b6d44decadf1ac29eacc6ec
+  productGUID: e096713562e5a1249a7c2470ec7ac03d
   iPhoneBundleVersion: 1.0
   AndroidBundleVersionCode: 1
-  AndroidMinSdkVersion: 9
+  AndroidMinSdkVersion: 6
   AndroidPreferredInstallLocation: 1
   aotOptions: 
   apiCompatibilityLevel: 2
@@ -112,7 +108,13 @@ PlayerSettings:
     m_Icons:
     - m_Icon: {fileID: 0}
       m_Size: 128
-  m_BuildTargetBatching: []
+  m_BuildTargetBatching:
+  - m_BuildTarget: Standalone
+    m_StaticBatching: 1
+    m_DynamicBatching: 1
+  - m_BuildTarget: Web
+    m_StaticBatching: 1
+    m_DynamicBatching: 1
   webPlayerTemplate: APPLICATION:Default
   m_TemplateCustomTags: {}
   wiiRegion: 1
@@ -149,9 +151,17 @@ PlayerSettings:
   ps3SaveGameSlots: 1
   ps3TrialMode: 0
   flashStrippingLevel: 2
-  spritePackerPolicy: DefaultPackerPolicy
-  scriptingDefineSymbols: {}
-  metroPackageName: _2D v3
+  scriptingDefineSymbols:
+    data:
+      first: 1
+      second: 
+    data:
+      first: 2
+      second: 
+    data:
+      first: 7
+      second: 
+  metroPackageName: 
   metroPackageLogo: 
   metroPackageVersion: 
   metroCertificatePath: 
@@ -159,13 +169,13 @@ PlayerSettings:
   metroCertificateSubject: 
   metroCertificateIssuer: 
   metroCertificateNotAfter: 0000000000000000
-  metroApplicationDescription: _2D v3
+  metroApplicationDescription: 
   metroTileLogo: 
   metroTileWideLogo: 
   metroTileSmallLogo: 
   metroTileShortName: 
   metroCommandLineArgsFile: 
-  metroTileShowName: 1
+  metroTileShowName: 0
   metroTileForegroundText: 1
   metroTileBackgroundColor: {r: 0, g: 0, b: 0, a: 1}
   metroSplashScreenImage: 
@@ -188,17 +198,11 @@ PlayerSettings:
   blackberryGPSPermissions: 0
   blackberryDeviceIDPermissions: 0
   blackberryMicrophonePermissions: 0
-  blackberryGamepadSupport: 0
   blackberryBuildId: 0
   blackberryLandscapeSplashScreen: {fileID: 0}
   blackberryPortraitSplashScreen: {fileID: 0}
   blackberrySquareSplashScreen: {fileID: 0}
-  tizenProductDescription: 
-  tizenProductURL: 
-  tizenCertificatePath: 
-  tizenCertificatePassword: 
-  tizenSaveLogPath: 
   firstStreamedLevelWithResources: 0
   unityRebuildLibraryVersion: 9
-  unityForwardCompatibleVersion: 39
+  unityForwardCompatibleVersion: 38
   unityStandardAssetsVersion: 0
