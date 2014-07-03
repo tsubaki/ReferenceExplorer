@@ -4,8 +4,6 @@ using UnityEditor;
 using System.Collections.Generic;
 using terasurware;
 
-
-
 public class ReferenceAllObjectWindow : EditorWindow
 {
 	[MenuItem("Window/Referenced/All")]
@@ -52,12 +50,19 @@ public class ReferenceAllObjectWindow : EditorWindow
 		}
 		
 		foreach (var item in refObjectList) {
-			ParentShow (item.rootComponent.transform);
-			if( item.value is GameObject)
-				ParentShow (((GameObject) item.value).transform);
-			if( item.value is Component)
-				ParentShow (((Component) item.value).transform);
 
+			try {
+				ParentShow (item.rootComponent.transform);
+				if (item.value == null)
+					continue;
+				if (item.value is GameObject) {
+					ParentShow (((GameObject)item.value).transform);
+				}
+				if (item.value is Component) {
+					ParentShow (((Component)item.value).transform);
+				}
+			} catch (UnassignedReferenceException) {
+			}
 		}
 	}
 	
@@ -72,7 +77,8 @@ public class ReferenceAllObjectWindow : EditorWindow
 		}
 	}
 
-	void OnSelectionChange ()
+	/*
+	 * void OnSelectionChange ()
 	// void Update()
 	{
 
@@ -81,6 +87,7 @@ public class ReferenceAllObjectWindow : EditorWindow
 			UpdateList ();
 		}
 	}
+	*/
 
 	void UpdateAllObject ()
 	{
@@ -102,10 +109,16 @@ public class ReferenceAllObjectWindow : EditorWindow
 	void OnGUI ()
 	{	
 
+		if (GUILayout.Button ("update")) {
+			UpdateAllObject ();
+			UpdateList ();
+			Debug.Log (refObjectList.Count);
+		}
+
 		if (EditorApplication.isPlaying && !EditorApplication.isPaused) {
 			if (GUILayout.Button ("pause")) {
 				EditorApplication.isPaused = true;
-				UpdateList();
+				UpdateList ();
 			}
 			return;
 		}
@@ -130,36 +143,41 @@ public class ReferenceAllObjectWindow : EditorWindow
 		try {
 			
 			foreach (var referenceObject in refObjectList) {
-				GameObject rootObject = referenceObject.rootComponent.gameObject;
-				GameObject targetObject = null;
+
+				try {
+
+					GameObject rootObject = referenceObject.rootComponent.gameObject;
+					GameObject targetObject = null;
 				
-				if (referenceObject.value is Component)
-					targetObject = ((Component)referenceObject.value).gameObject;
-				if (referenceObject.value is GameObject)
-					targetObject = (GameObject)referenceObject.value;
+					if (referenceObject.value is Component)
+						targetObject = ((Component)referenceObject.value).gameObject;
+					if (referenceObject.value is GameObject)
+						targetObject = (GameObject)referenceObject.value;
+				 
+					if (preGameObjectID != rootObject.GetInstanceID ()) {
+						preGameObjectID = rootObject.GetInstanceID ();
+						EditorGUILayout.Space ();
+						EditorGUILayout.ObjectField (referenceObject.rootComponent.gameObject, referenceObject.GetType ());
+					}
 				
-				if (preGameObjectID != rootObject.GetInstanceID ()) {
-					preGameObjectID = rootObject.GetInstanceID ();
-					EditorGUILayout.Space ();
-					EditorGUILayout.ObjectField (referenceObject.rootComponent.gameObject , referenceObject.GetType());
-				}
-				
-				string msg = string.Format ("{2}.{1} -> ({0}) {3}", 
+					string msg = string.Format ("{2}.{1} -> ({0}) {3}", 
 				                            referenceObject.value.GetType ().Name, 
 				                            referenceObject.memberName, 
 				                            referenceObject.rootComponent.GetType ().Name,
 				                            targetObject.name);
 				
 				
-				GUILayout.BeginHorizontal ();
-				GUILayout.Label (EditorGUIUtility.ObjectContent (null, typeof(ReferenceObject)).image, GUILayout.Height (16), GUILayout.Width (16));
-				if( GUILayout.Button(msg, styles) )
-				{
-					EditorGUIUtility.PingObject(targetObject);
-				}
-				GUILayout.EndHorizontal ();
+					GUILayout.BeginHorizontal ();
+					GUILayout.Label (EditorGUIUtility.ObjectContent (null, typeof(ReferenceObject)).image, GUILayout.Height (16), GUILayout.Width (16));
+					if (GUILayout.Button (msg, styles)) {
+						EditorGUIUtility.PingObject (targetObject);
+					}
+					GUILayout.EndHorizontal ();
+				} catch (UnassignedReferenceException) {
+				} catch (MissingReferenceException){}
 			}
-		} catch {
+		} catch (System.Exception e) {
+			Debug.Log (e.ToString ());
 			refObjectList.Clear ();
 		}
 

@@ -146,6 +146,10 @@ namespace terasurware
 				}
 			}
 
+			foreach( var ev in type.GetEvents())
+			{
+			}
+
 
 			// property Instability
 
