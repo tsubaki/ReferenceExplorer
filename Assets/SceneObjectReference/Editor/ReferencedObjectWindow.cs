@@ -38,6 +38,20 @@ public class ReferencedObjectWindow :  EditorWindow
 		referenceObjectList.Clear();
 		SceneObjectUtility.UpdateGlovalReferenceList();
 		SceneObjectUtility.FindReferenceObject( Selection.activeGameObject, referenceObjectList) ;
+
+		referenceObjectList.Sort( (x, y) => GetObjectID(x.rootComponent) - GetObjectID(y.rootComponent) );
+
+	}
+
+
+	int GetObjectID(object obj)
+	{
+		if (obj is Component)
+			return ((Component)obj).GetInstanceID();
+		if (obj is GameObject)
+			return ((GameObject)obj).GetInstanceID();
+
+		return -1;
 	}
 	
 	void OnGUI () {	
@@ -52,31 +66,21 @@ public class ReferencedObjectWindow :  EditorWindow
 		try {
 			
 			foreach (var referenceObject in referenceObjectList) {
-				GameObject rootObject = referenceObject.rootComponent.gameObject;
-				GameObject targetObject = null;
-				
-				if (referenceObject.value is Component)
-					targetObject = ((Component)referenceObject.value).gameObject;
-				if (referenceObject.value is GameObject)
-					targetObject = (GameObject)referenceObject.value;
-				
-				if (preGameObjectID != rootObject.GetInstanceID ()) {
-					preGameObjectID = rootObject.GetInstanceID ();
+
+				int currentObjectID  = GetObjectID(referenceObject.rootComponent.gameObject);
+				if (preGameObjectID != currentObjectID) {
+					preGameObjectID = currentObjectID;
 					EditorGUILayout.Space ();
-					EditorGUILayout.ObjectField (referenceObject.rootComponent.gameObject , referenceObject.GetType());
+					EditorGUILayout.ObjectField(referenceObject.rootComponent.gameObject, 
+					                            typeof(GameObject), false);
 				}
-				
-				string msg = string.Format ("{2}.{1} -> ({0}) {3}", 
-				                            referenceObject.value.GetType ().Name, 
-				                            referenceObject.memberName, 
-				                            referenceObject.rootComponent.GetType ().Name,
-				                            targetObject.name);
-				
-				
-				GUILayout.BeginHorizontal ();
-				GUILayout.Label (EditorGUIUtility.ObjectContent (null, typeof(ReferenceObject)).image, GUILayout.Height (16), GUILayout.Width (16));
-				GUILayout.Label (msg);
-				GUILayout.EndHorizontal ();
+
+				string msg = string.Format("  ({2}) {0} . {1}", 
+				                referenceObject.rootComponent.GetType ().Name,
+				                referenceObject.memberName,
+				                referenceObject.value.GetType().Name);
+
+				EditorGUILayout.LabelField(msg);
 			}
 		} catch {
 			referenceObjectList.Clear ();

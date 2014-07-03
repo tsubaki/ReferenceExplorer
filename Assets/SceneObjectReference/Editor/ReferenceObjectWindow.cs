@@ -54,22 +54,17 @@ public class ReferenceObjectWindow : EditorWindow
 				if (referenceObject.value is GameObject)
 					targetObject = (GameObject)referenceObject.value;
 
-				if (preGameObjectID != rootObject.GetInstanceID ()) {
-					preGameObjectID = rootObject.GetInstanceID ();
+				if (preGameObjectID != referenceObject.rootComponent.GetInstanceID ()) {
+					preGameObjectID = referenceObject.rootComponent.GetInstanceID ();
 					EditorGUILayout.Space ();
-					EditorGUILayout.ObjectField (rootObject, typeof(GameObject));
+					GUILayout.Label(referenceObject.rootComponent.GetType().Name);
 				}
 
-				string msg = string.Format ("{2}.{1} -> ({0}) {3}", 
-				                           referenceObject.value.GetType ().Name, 
-				                           referenceObject.memberName, 
-				                           referenceObject.rootComponent.GetType ().Name,
-				                           targetObject.name);
+				string msg = string.Format ("( {1} ) {0} ",referenceObject.memberName, referenceObject.value.GetType().Name);
 
-	
 				GUILayout.BeginHorizontal ();
-				GUILayout.Label (EditorGUIUtility.ObjectContent (null, typeof(ReferenceObject)).image, GUILayout.Height (16), GUILayout.Width (16));
-				GUILayout.Label (msg);
+					EditorGUILayout.LabelField(msg);
+					EditorGUILayout.ObjectField((Object)referenceObject.value, referenceObject.value.GetType(), true);
 				GUILayout.EndHorizontal ();
 			}
 		} catch {
