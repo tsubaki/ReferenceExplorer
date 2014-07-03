@@ -4,13 +4,15 @@ using UnityEditor;
 using System.Collections.Generic;
 using terasurware;
 
+
+
 public class ReferenceAllObjectWindow : EditorWindow
 {
-
 	[MenuItem("Window/Referenced/All")]
 	static void Init ()
 	{
 		var window = GetWindow (typeof(ReferenceAllObjectWindow));
+		window.title = "all";
 		window.Show ();
 	}
 
@@ -50,8 +52,12 @@ public class ReferenceAllObjectWindow : EditorWindow
 		}
 		
 		foreach (var item in refObjectList) {
-			ParentShow (item.rootObject.transform);
-			ParentShow (item.thisObject.transform);
+			ParentShow (item.rootComponent.transform);
+			if( item.value is GameObject)
+				ParentShow (((GameObject) item.value).transform);
+			if( item.value is Component)
+				ParentShow (((Component) item.value).transform);
+
 		}
 	}
 	
@@ -89,7 +95,7 @@ public class ReferenceAllObjectWindow : EditorWindow
 			SceneObjectUtility.GetReferenceObject (obj, refObjectList);
 		}
 		refObjectList.Sort ((x,y) => {
-			return x.thisObject.GetInstanceID () - y.thisObject.GetInstanceID (); });
+			return x.rootComponent.GetInstanceID () - y.rootComponent.GetInstanceID (); });
 	}
 	
 	void OnGUI ()
@@ -118,36 +124,40 @@ public class ReferenceAllObjectWindow : EditorWindow
 		
 		int preGameObjectID = 0;
 		
-		foreach (var refObject in refObjectList) {
-			try {
-
-				if (preGameObjectID != refObject.thisObject.GetInstanceID ()) {
-					preGameObjectID = refObject.thisObject.GetInstanceID ();
-					EditorGUILayout.Space ();
-					EditorGUILayout.ObjectField (refObject.thisObject, refObject.thisObject.GetType ());
-				}
-			
-				string msg = string.Format ("{2}.{1} -> ({0}){4}", 
-			                           refObject.value.GetType ().Name, 
-			                           refObject.fieldName, 
-			                           refObject.valueType.Name, 
-			                           refObject.thisObject.name, 
-			                           refObject.value.name);
-			
-				GUILayout.BeginHorizontal ();
-				GUILayout.Label (EditorGUIUtility.ObjectContent (null, refObject.valueType).image, GUILayout.Height (16), GUILayout.Width (16));
-				if (GUILayout.Button (msg, styles)) {
-					EditorGUIUtility.PingObject (refObject.value);
-
-					Selection.activeGameObject = refObject.thisObject;
-				}
-				GUILayout.EndHorizontal ();
-			} catch (MissingReferenceException) {
-			} catch (MissingComponentException) {
-			} catch (UnassignedReferenceException){
-			}
-		}
 		
+		try {
+			
+			foreach (var referenceObject in refObjectList) {
+				GameObject rootObject = referenceObject.rootComponent.gameObject;
+				GameObject targetObject = null;
+				
+				if (referenceObject.value is Component)
+					targetObject = ((Component)referenceObject.value).gameObject;
+				if (referenceObject.value is GameObject)
+					targetObject = (GameObject)referenceObject.value;
+				
+				if (preGameObjectID != rootObject.GetInstanceID ()) {
+					preGameObjectID = rootObject.GetInstanceID ();
+					EditorGUILayout.Space ();
+					EditorGUILayout.ObjectField (referenceObject.rootComponent.gameObject , referenceObject.GetType());
+				}
+				
+				string msg = string.Format ("{2}.{1} -> ({0}) {3}", 
+				                            referenceObject.value.GetType ().Name, 
+				                            referenceObject.memberName, 
+				                            referenceObject.rootComponent.GetType ().Name,
+				                            targetObject.name);
+				
+				
+				GUILayout.BeginHorizontal ();
+				GUILayout.Label (EditorGUIUtility.ObjectContent (null, typeof(ReferenceObject)).image, GUILayout.Height (16), GUILayout.Width (16));
+				GUILayout.Label (msg);
+				GUILayout.EndHorizontal ();
+			}
+		} catch {
+			refObjectList.Clear ();
+		}
+
 		EditorGUILayout.EndScrollView ();
 	}
 }

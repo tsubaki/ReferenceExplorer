@@ -3,8 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using System.Reflection;
+using terasurware;
 
-public class GetComponentsP : MonoBehaviour {
+public class ReferenceUtility {
 
 	[MenuItem("Component/Hoge")]
 	public static void GetComponents()
@@ -14,7 +15,7 @@ public class GetComponentsP : MonoBehaviour {
 			return;
 		}
 
-		Queue<RefObject> objects = new Queue<RefObject>();
+		Queue<ReferenceObject> objects = new Queue<ReferenceObject>();
 
 		foreach( var component in obj.GetComponents<Component>())
 		{
@@ -25,8 +26,7 @@ public class GetComponentsP : MonoBehaviour {
 				BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance |
 				BindingFlags.Static | BindingFlags.DeclaredOnly))
 			{
-				var item = new RefObject(){
-					rootObject = obj,
+				var item = new ReferenceObject(){
 					rootComponent = component,
 					value = field.GetValue(component),
 					memberName = field.Name,
@@ -37,8 +37,7 @@ public class GetComponentsP : MonoBehaviour {
 			foreach( var property in type.GetProperties(
 				BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static))
 			{
-				var item = new RefObject(){
-					rootObject = obj,
+				var item = new ReferenceObject(){
 					rootComponent = component,
 					value = property.GetValue(component, null),
 					memberName = property.Name,
@@ -53,7 +52,7 @@ public class GetComponentsP : MonoBehaviour {
 		}
 	}
 
-	private static void AddObjectWithoutSelfObject(RefObject refObject, Queue<RefObject> objects)
+	private static void AddObjectWithoutSelfObject(ReferenceObject refObject, Queue<ReferenceObject> objects)
 	{
 		var value = refObject.value as Object;
 		if (value == null || value.GetType ().IsPrimitive)
@@ -62,16 +61,16 @@ public class GetComponentsP : MonoBehaviour {
 		if(value is GameObject)
 		{
 			var obj = value as GameObject;
-			if( obj != refObject.rootObject )
+			if( obj != refObject.rootComponent.gameObject )
 				objects.Enqueue(refObject);
 		}else if(value is Component){
 			var component = value as Component;
-			if(component.gameObject != refObject.rootObject)
+			if(component.gameObject != refObject.rootComponent.gameObject)
 				objects.Enqueue(refObject);
 		}
 	}
 
-	private static void AddObject(RefObject refObject, Queue<RefObject> objects)
+	private static void AddObject(ReferenceObject refObject, Queue<ReferenceObject> objects)
 	{
 		var value = refObject.value as Object;
 		if (value == null || value.GetType ().IsPrimitive)
@@ -83,13 +82,5 @@ public class GetComponentsP : MonoBehaviour {
 		}else if(value is Component){
 			objects.Enqueue(refObject);
 		}
-	}
-
-	struct RefObject
-	{
-		public object value;
-		public GameObject rootObject;
-		public Component rootComponent;
-		public string memberName;
 	}
 }

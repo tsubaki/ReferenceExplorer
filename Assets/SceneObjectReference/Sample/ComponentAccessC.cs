@@ -3,6 +3,8 @@ using System.Collections;
 
 public class ComponentAccessC : MonoBehaviour {
 
+	public int hoge;
+
 	public SerializedClass serializeClass;
 	
 	[System.Serializable]
@@ -11,5 +13,4 @@ public class ComponentAccessC : MonoBehaviour {
 		public ComponentAccessB accessb;
 		public GameObject[] objects;
 	}
-	
 }
