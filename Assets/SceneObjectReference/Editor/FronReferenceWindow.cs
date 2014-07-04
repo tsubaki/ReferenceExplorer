@@ -4,13 +4,13 @@ using UnityEditor;
 using System.Collections.Generic;
 using terasurware;
 
-public class ReferenceObjectWindow : EditorWindow
+public class FronReferenceWindow : EditorWindow
 {
 
 	[MenuItem("Window/Referenced/to object")]
 	static void Init ()
 	{
-		var window = GetWindow (typeof(ReferenceObjectWindow));
+		var window = GetWindow (typeof(FronReferenceWindow));
 		window.title = "to";
 		window.Show ();
 	}

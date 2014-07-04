@@ -4,7 +4,7 @@ using UnityEditor;
 using System.Collections.Generic;
 using terasurware;
 
-public class ReferencedObjectWindow :  EditorWindow 
+public class ToObjectReferenceWindow :  EditorWindow 
 {
 	Vector2 current;
 
@@ -13,7 +13,7 @@ public class ReferencedObjectWindow :  EditorWindow
 
 	[MenuItem("Window/Referenced/for object")]
 	static void Init () {
-		var window = GetWindow( typeof(ReferencedObjectWindow));
+		var window = GetWindow( typeof(ToObjectReferenceWindow));
 		window.title = "from";
 		window.Show();
 	}
