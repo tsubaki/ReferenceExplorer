@@ -4,13 +4,13 @@ using UnityEditor;
 using System.Collections.Generic;
 using terasurware;
 
-public class FronReferenceWindow : EditorWindow
+public class ToReferenceWindow : EditorWindow
 {
 
 	[MenuItem("Window/Referenced/to object")]
 	static void Init ()
 	{
-		var window = GetWindow (typeof(FronReferenceWindow));
+		var window = GetWindow (typeof(ToReferenceWindow));
 		window.title = "to";
 		window.Show ();
 	}
@@ -21,7 +21,19 @@ public class FronReferenceWindow : EditorWindow
 	{
 		Repaint ();
 	}
-
+	
+	
+	void OnEnable()
+	{
+		SceneView.onSceneGUIDelegate -= OnSceneGUI;
+		SceneView.onSceneGUIDelegate += OnSceneGUI;
+	}
+	
+	void OnDisable()
+	{
+		SceneView.onSceneGUIDelegate -= OnSceneGUI;
+	}
+		
 	Vector2 current;
 
 	void OnSelectionChange()
@@ -32,7 +44,37 @@ public class FronReferenceWindow : EditorWindow
 
 		SceneObjectUtility.GetReferenceObject (Selection.activeGameObject, referenceObjectList);
 	}
+	
+	void OnSceneGUI(SceneView sceneView)
+	{
+		var selection = Selection.activeGameObject as GameObject;
+		if( selection == null)
+			return;
 
+		foreach( var target in referenceObjectList )
+		{
+			var obj = SceneObjectUtility.GetGameObject(target.value);
+			if( obj == null)
+			{
+				Debug.Log("null");
+				continue;
+			}
+			
+			
+
+			
+			var startPosition = selection.transform.position;
+			var endPosition = obj.transform.position;
+			
+			if( startPosition == endPosition )
+				continue;
+			
+			Handles.color = Color.red;
+			Handles.DrawLine(startPosition, endPosition);
+		}
+	}
+		
+	
 	void OnGUI ()
 	{
 		GUIStyle styles = new GUIStyle ();

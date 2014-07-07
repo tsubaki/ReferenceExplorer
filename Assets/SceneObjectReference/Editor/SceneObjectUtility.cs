@@ -108,6 +108,19 @@ namespace terasurware
 				}
 			}
 		}
+		
+		public static GameObject GetGameObject(object target)
+		{
+			try{
+				if (target is GameObject) {
+					return (GameObject)target;
+				}
+				if (target is Component) {
+					return ((Component)target).gameObject;
+				}
+			} catch (UnassignedReferenceException) {}
+			return null;
+		}
 
 
 		static void CollectObjectParameter(object obj, Component component, List<ReferenceObject>objectList)
@@ -144,10 +157,6 @@ namespace terasurware
 					};
 					AddObject(item, objectList, true);
 				}
-			}
-
-			foreach( var ev in type.GetEvents())
-			{
 			}
 
 

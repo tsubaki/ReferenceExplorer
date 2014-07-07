@@ -51,18 +51,14 @@ public class ReferenceAllObjectWindow : EditorWindow
 		
 		foreach (var item in refObjectList) {
 
-			try {
 				ParentShow (item.rootComponent.transform);
 				if (item.value == null)
 					continue;
-				if (item.value is GameObject) {
-					ParentShow (((GameObject)item.value).transform);
-				}
-				if (item.value is Component) {
-					ParentShow (((Component)item.value).transform);
-				}
-			} catch (UnassignedReferenceException) {
-			}
+				
+				var obj = SceneObjectUtility.GetGameObject(item.value);
+				
+				if( obj != null )
+					ParentShow(obj.transform);
 		}
 	}
 	
@@ -176,6 +172,7 @@ public class ReferenceAllObjectWindow : EditorWindow
 				} catch (UnassignedReferenceException) {
 				} catch (MissingReferenceException){}
 			}
+		}catch (UnityEngine.ExitGUIException e){
 		} catch (System.Exception e) {
 			Debug.Log (e.ToString ());
 			refObjectList.Clear ();

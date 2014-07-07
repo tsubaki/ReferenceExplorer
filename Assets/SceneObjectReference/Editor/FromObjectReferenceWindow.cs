@@ -4,16 +4,16 @@ using UnityEditor;
 using System.Collections.Generic;
 using terasurware;
 
-public class ToObjectReferenceWindow :  EditorWindow 
+public class FromObjectReferenceWindow :  EditorWindow 
 {
 	Vector2 current;
 
 	List<ReferenceObject> referenceObjectList = new List<ReferenceObject>();
 
 
-	[MenuItem("Window/Referenced/for object")]
+	[MenuItem("Window/Referenced/from object")]
 	static void Init () {
-		var window = GetWindow( typeof(ToObjectReferenceWindow));
+		var window = GetWindow( typeof(FromObjectReferenceWindow));
 		window.title = "from";
 		window.Show();
 	}
@@ -21,6 +21,14 @@ public class ToObjectReferenceWindow :  EditorWindow
 	void OnEnable()
 	{
 		SceneObjectUtility.UpdateGlovalReferenceList();
+
+		SceneView.onSceneGUIDelegate -= OnSceneGUI;
+		SceneView.onSceneGUIDelegate += OnSceneGUI;
+	}
+	
+	void OnDisable()
+	{
+		SceneView.onSceneGUIDelegate -= OnSceneGUI;
 	}
 	
 	void OnInspectorUpdate () {
@@ -31,7 +39,8 @@ public class ToObjectReferenceWindow :  EditorWindow
 	{
 		SceneObjectUtility.UpdateGlovalReferenceList();
 	}
-
+	
+	
 	void OnSelectionChange()
 	//void Update()
 	{
@@ -42,7 +51,30 @@ public class ToObjectReferenceWindow :  EditorWindow
 		referenceObjectList.Sort( (x, y) => GetObjectID(x.rootComponent) - GetObjectID(y.rootComponent) );
 
 	}
+	
+	void OnSceneGUI(SceneView sceneView)
+	{
+		var selection = Selection.activeGameObject as GameObject;
+		if( selection == null)
+			return;
 
+		foreach( var refs in referenceObjectList)
+		{
+			var obj = SceneObjectUtility.GetGameObject(refs.rootComponent);
+			
+			var startPosition = selection.transform.position;
+			var endPosition = obj.transform.position;
+			
+			if( startPosition == endPosition )
+				continue;
+			
+			Handles.color = Color.blue;
+			Handles.DrawLine(startPosition, endPosition);
+		}
+	}
+	
+	
+	
 
 	int GetObjectID(object obj)
 	{
