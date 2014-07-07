@@ -121,7 +121,8 @@ namespace terasurware
 			} catch (UnassignedReferenceException) {}
 			return null;
 		}
-
+		
+		static System.Action act2;
 
 		static void CollectObjectParameter(object obj, Component component, List<ReferenceObject>objectList)
 		{
@@ -158,8 +159,60 @@ namespace terasurware
 					AddObject(item, objectList, true);
 				}
 			}
+			
+			foreach( var ev in type.GetEvents() )
+			{
+				var fi = type.GetField(ev.Name, 
+						BindingFlags.Static | 
+						BindingFlags.NonPublic | 
+						BindingFlags.Instance | 
+						BindingFlags.Public | 
+						BindingFlags.FlattenHierarchy);
+				
+				var del = (System.Delegate)fi.GetValue(obj);
+				
+				
+				if( del == null )
+				{
+					continue;
+				}
 
+				var list = del.GetInvocationList();
+				
+				foreach( var item in list )
+				{
+					if( item.Target is Component )
+					{
+						var c = item.Target as Component;
+						if( c == null )
+							continue;
 
+						var refObject= new ReferenceObject(){
+							rootComponent = component,
+							value = c,
+							memberName = ev.Name + "(" +  item.Method.Name + ")",
+						};						
+						AddObject(refObject, objectList, true);				
+					}
+					if( item.Target is GameObject )
+					{
+						var go = item.Target as GameObject;
+						if( go == null )
+							continue;
+
+						var refObject= new ReferenceObject(){
+							rootComponent = component,
+							value = go,
+							memberName = ev.Name + "(" +  item.Method.Name + ")",
+						};						
+						AddObject(refObject, objectList, true);		
+					}
+				}
+				
+			}
+			
+			
+			
 			// property Instability
 
 			foreach( var property in type.GetProperties(
