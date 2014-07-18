@@ -94,7 +94,6 @@ public class ReferenceAllObjectWindow : EditorWindow
 	{
 		refObjectList.Clear ();
 
-		
 		foreach (var obj in allObject) {
 			SceneObjectUtility.GetReferenceObject (obj, refObjectList);
 		}

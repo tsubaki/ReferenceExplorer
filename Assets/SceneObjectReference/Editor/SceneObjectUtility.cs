@@ -17,13 +17,19 @@ namespace terasurware
 		};
 		static readonly string[] ignoreMember =
 		{
-			"root", "parent", "particleEmitter", "rigidbody",
+			"root", "parent", "particleEmitter", "rigidbody", "canvas",
 			"rigidbody2D", "camera", "light", "animation",
 			"constantForce", "gameObject", "guiText", "guiTexture",
 			"hingeJoint", "networkView", "particleSystem", "renderer",
 			"tag", "transform", "hideFlags", "name", "audio", "collider2D", "collider", "material", "mesh",
 			"Material", "material", "Color", "maxVolume", "minVolume", "rolloffFactor", "GetRemainingDistance",
 		};
+		
+		static readonly string[] ignoreEvents =
+		{
+			"onRequestRebuild",
+		};
+		
 		static ArrayList stackObjects = new ArrayList ();
 		static Component[] allComponents = new Component[0];
 		static List<ReferenceObject> glovalReferenceList = new List<ReferenceObject> ();
@@ -41,6 +47,7 @@ namespace terasurware
 			foreach (var item in GetAllObjectsInScene (false)) {
 				GetReferenceObject (item, glovalReferenceList);
 			}
+			
 		}
 
 		public static bool IsIgnoreType (System.Type type)
@@ -115,6 +122,8 @@ namespace terasurware
 
 		static void CollectObjectParameter (object obj, Component component, List<ReferenceObject>objectList)
 		{
+			if( obj == null)
+				return;
 			var type = obj.GetType ();
 
 			if (IsIgnoreType (type))
@@ -148,6 +157,12 @@ namespace terasurware
 			}
 			
 			foreach (var ev in type.GetEvents()) {
+				
+				if( System.Array.AsReadOnly<string>(ignoreEvents).Contains(ev.Name) )
+				{
+					continue;
+				}
+				
 				var fi = type.GetField (ev.Name, 
 						BindingFlags.Static | 
 						BindingFlags.NonPublic | 

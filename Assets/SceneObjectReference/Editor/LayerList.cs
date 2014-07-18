@@ -25,10 +25,8 @@ public class LayerList : EditorWindow
 		layerWithObjectList.Clear ();
 		
 		int defaultLayer = LayerMask.NameToLayer ("Default");
-		Debug.Log (defaultLayer);
 		
 		foreach (var obj in allObjects) {
-			Debug.Log (obj.layer);
 			if (obj.layer == defaultLayer)
 				continue;
 			

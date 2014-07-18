@@ -50,27 +50,49 @@ public class ToReferenceWindow : EditorWindow
 		var selection = Selection.activeGameObject as GameObject;
 		if( selection == null)
 			return;
-
+		
+		
+		var cameraTransform =  SceneView.currentDrawingSceneView.camera.transform;
+		var rotate = cameraTransform.rotation;
+		var cameraPos = cameraTransform.position;
+		
+		Color shadowCol = new Color(0.5f, 0, 0, 0.06f);
+		
 		foreach( var target in referenceObjectList )
 		{
 			var obj = SceneObjectUtility.GetGameObject(target.value);
 			if( obj == null)
 			{
-				Debug.Log("null");
+				continue;
+			}
+			if( obj == Selection.activeGameObject){
 				continue;
 			}
 			
 			
-
-			
 			var startPosition = selection.transform.position;
 			var endPosition = obj.transform.position;
+			
+			var size = Vector3.Distance(endPosition, cameraPos) * 0.02f;
 			
 			if( startPosition == endPosition )
 				continue;
 			
 			Handles.color = Color.red;
-			Handles.DrawLine(startPosition, endPosition);
+			
+			var diffPos = startPosition - endPosition;
+			var tan = new Vector3(diffPos.y, diffPos.x, diffPos.z);
+			
+			
+			var startTan = startPosition + tan * 0.4f;
+			 var endTan = endPosition ;
+			
+			Handles.CircleCap(1, endPosition, rotate, size);
+
+			for(int i=0; i<3; i++)
+				Handles.DrawBezier(startPosition, endPosition, startTan, endTan, shadowCol, null, (i + 1) * 5);
+			Handles.DrawBezier(startPosition, endPosition, startTan, endTan, Color.red, null, 1);
+			Handles.Label(endPosition, obj.name);
 		}
 	}
 		
