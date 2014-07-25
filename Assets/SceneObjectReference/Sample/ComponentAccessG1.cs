@@ -3,13 +3,9 @@ using System.Collections;
 
 public class ComponentAccessG1 : MonoBehaviour {
 
-	// Use this for initialization
-	void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
+	public delegate void Test();
+
+	public event Test act;
+
+
 }
