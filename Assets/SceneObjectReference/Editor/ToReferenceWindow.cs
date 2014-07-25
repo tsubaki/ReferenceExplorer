@@ -37,7 +37,6 @@ public class ToReferenceWindow : EditorWindow
 	Vector2 current;
 
 	void OnSelectionChange()
-	//void Update ()
 	{
 		referenceObjectList.Clear ();
 		SceneObjectUtility.Init ();
@@ -84,14 +83,15 @@ public class ToReferenceWindow : EditorWindow
 			var tan = new Vector3(diffPos.y, diffPos.x, diffPos.z);
 			
 			
-			var startTan = startPosition + tan * 0.4f;
-			 var endTan = endPosition ;
+			var startTan = startPosition;
+			 var endTan = endPosition  + tan * 0.4f;
 			
 			Handles.CircleCap(1, endPosition, rotate, size);
 
 			for(int i=0; i<3; i++)
 				Handles.DrawBezier(startPosition, endPosition, startTan, endTan, shadowCol, null, (i + 1) * 5);
 			Handles.DrawBezier(startPosition, endPosition, startTan, endTan, Color.red, null, 1);
+			
 			Handles.Label(endPosition, obj.name);
 		}
 	}
@@ -110,13 +110,6 @@ public class ToReferenceWindow : EditorWindow
 		try {
 
 			foreach (var referenceObject in referenceObjectList) {
-				GameObject rootObject = referenceObject.rootComponent.gameObject;
-				GameObject targetObject = null;
-
-				if (referenceObject.value is Component)
-					targetObject = ((Component)referenceObject.value).gameObject;
-				if (referenceObject.value is GameObject)
-					targetObject = (GameObject)referenceObject.value;
 
 				if (preGameObjectID != referenceObject.rootComponent.GetInstanceID ()) {
 					preGameObjectID = referenceObject.rootComponent.GetInstanceID ();
