@@ -42,7 +42,6 @@ public class FromObjectReferenceWindow :  EditorWindow
 	
 	
 	void OnSelectionChange()
-	//void Update()
 	{
 		referenceObjectList.Clear();
 		SceneObjectUtility.UpdateGlovalReferenceList();
