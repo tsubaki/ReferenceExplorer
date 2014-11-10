@@ -20,6 +20,7 @@ public class ReferenceUtility {
 		foreach( var component in obj.GetComponents<Component>())
 		{
 
+			/*
 			var type = component.GetType();
 
 			foreach( var field in type.GetFields(
@@ -33,7 +34,9 @@ public class ReferenceUtility {
 				};
 				AddObject(item, objects);
 			}
+			
 
+			/*
 			foreach( var property in type.GetProperties(
 				BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static))
 			{
@@ -44,12 +47,15 @@ public class ReferenceUtility {
 				};
 				AddObjectWithoutSelfObject(item, objects);
 			}
+			*/
 		}
 
+		/*
 		foreach( var collectedObj in objects)
 		{
 			Debug.Log(collectedObj.rootComponent.name + "." + collectedObj.memberName + "/" + collectedObj.value);
 		}
+		*/
 	}
 
 	private static void AddObjectWithoutSelfObject(ReferenceObject refObject, Queue<ReferenceObject> objects)

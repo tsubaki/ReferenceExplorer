@@ -107,7 +107,6 @@ public class ReferenceAllObjectWindow : EditorWindow
 		if (GUILayout.Button ("update")) {
 			UpdateAllObject ();
 			UpdateList ();
-			Debug.Log (refObjectList.Count);
 		}
 
 		if (EditorApplication.isPlaying && !EditorApplication.isPaused) {
