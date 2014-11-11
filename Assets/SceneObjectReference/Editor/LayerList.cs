@@ -10,7 +10,7 @@ public class LayerList : EditorWindow
 	Vector2 current;
 	List<LayerWithObject> layerWithObjectList = new List<LayerWithObject> ();
 	
-	[MenuItem("Window/Referenced/layer list")]
+	//[MenuItem("Window/Referenced/layer list")]
 	static void Init ()
 	{
 		var window = GetWindow (typeof(LayerList)) as LayerList;

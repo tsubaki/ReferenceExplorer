@@ -115,25 +115,39 @@ public class FromObjectReferenceWindow :  EditorWindow
 
 		int preGameObjectID = 0;
 
-		try {
-			
-			foreach (var referenceObject in referenceObjectList) {
-
-				int currentObjectID  = GetObjectID(referenceObject.rootComponent.gameObject);
-				if (preGameObjectID != currentObjectID) {
-					preGameObjectID = currentObjectID;
-					EditorGUILayout.Space ();
-					EditorGUILayout.ObjectField(referenceObject.rootComponent.gameObject, 
-					                            typeof(GameObject), false);
-				}
-
-				string msg = string.Format("  ({2}) {0} . {1}", 
-				                referenceObject.rootComponent.GetType ().Name,
-				                referenceObject.memberName,
-				                referenceObject.value.GetType().Name);
-
-				EditorGUILayout.LabelField(msg);
+		List<GameObject> comps = new List<GameObject> ();
+		foreach (var referenceObject in referenceObjectList) {
+			if(! comps.Contains(referenceObject.rootComponent.gameObject ) )
+			{
+				comps.Add(referenceObject.rootComponent.gameObject);
 			}
+		}
+
+		try {
+			foreach( var refObj in comps )
+			{
+				var components = referenceObjectList.FindAll( (item) => {
+					return item.rootComponent.gameObject == refObj;
+				});
+				EditorGUILayout.BeginHorizontal("box", GUILayout.Width(Screen.width * 0.96f));
+				
+				EditorGUILayout.ObjectField(components[0].rootComponent.gameObject, typeof(GameObject), false,  GUILayout.ExpandWidth(true));
+				EditorGUILayout.BeginVertical();
+				foreach( var toComp in components )
+				{
+					EditorGUILayout.BeginHorizontal();
+					string msg = string.Format("  ({2}) {0} . {1}", 
+					                           toComp.rootComponent.GetType ().Name,
+					                           toComp.memberName,
+					                           toComp.value.GetType().Name);
+					
+					EditorGUILayout.LabelField(msg);
+					EditorGUILayout.EndHorizontal();
+				}
+				EditorGUILayout.EndVertical();
+				EditorGUILayout.EndHorizontal();
+			}
+
 		} catch {
 			referenceObjectList.Clear ();
 		}

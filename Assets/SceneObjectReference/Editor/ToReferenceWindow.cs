@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEditor;
 using System.Collections.Generic;
 using terasurware;
+using System.Text.RegularExpressions;
 
 public class ToReferenceWindow : EditorWindow
 {
@@ -16,6 +17,7 @@ public class ToReferenceWindow : EditorWindow
 	}
 
 	List<ReferenceObject> referenceObjectList = new List<ReferenceObject> ();
+	List<PerhapsReferenceObject> perhapsReferenceObjectList = new List<PerhapsReferenceObject>();
 	
 	void OnInspectorUpdate ()
 	{
@@ -42,8 +44,36 @@ public class ToReferenceWindow : EditorWindow
 		SceneObjectUtility.Init ();
 
 		SceneObjectUtility.GetReferenceObject (Selection.activeGameObject, referenceObjectList);
+		UpdatePerahpsReferenceObjectList (Selection.activeGameObject);
 	}
-	
+
+
+	void UpdatePerahpsReferenceObjectList(GameObject obj)
+	{
+		perhapsReferenceObjectList.Clear ();
+		foreach( var component in  obj.GetComponents<MonoBehaviour>())
+		{
+			foreach( var text in MonoScript.FromMonoBehaviour(component).text.Split(';') )
+			{
+				Match m = Regex.Match(text, "GetComponent\\<(?<call>.*?)\\>");
+				if( m.Success ){
+					var methodName =  m.Groups["call"].ToString();
+//					if( perhapsReferenceObjectList.Find((item) =>
+//					{
+//						return item.comp == component || item.typeName == methodName ;
+//					}) == null)
+					{
+						var method = new PerhapsReferenceObject()
+						{
+							comp = component,
+							typeName = methodName
+						};
+						perhapsReferenceObjectList.Add(method);
+					}
+				}
+			}
+		}
+	}
 	void OnSceneGUI(SceneView sceneView)
 	{
 		var selection = Selection.activeGameObject as GameObject;
@@ -107,29 +137,57 @@ public class ToReferenceWindow : EditorWindow
 		
 		int preGameObjectID = 0;
 
+		List<Component> comps = new List<Component> ();
+		foreach (var referenceObject in referenceObjectList) {
+			if(! comps.Contains(referenceObject.rootComponent ) )
+			{
+				comps.Add(referenceObject.rootComponent);
+			}
+		}
+
 		try {
+			foreach( var refObj in comps )
+			{
+				var components = referenceObjectList.FindAll( (item) => {
+					return item.rootComponent == refObj;
+				});
+				EditorGUILayout.BeginHorizontal("box", GUILayout.Width(Screen.width * 0.96f));
 
-			foreach (var referenceObject in referenceObjectList) {
+				GUILayout.Label(components[0].rootComponent.GetType().Name,  GUILayout.ExpandWidth(true));
 
-				if (preGameObjectID != referenceObject.rootComponent.GetInstanceID ()) {
-					preGameObjectID = referenceObject.rootComponent.GetInstanceID ();
-					EditorGUILayout.Space ();
-					GUILayout.Label(referenceObject.rootComponent.GetType().Name);
+				EditorGUILayout.BeginVertical();
+				foreach( var toComp in components )
+				{
+					string msg = string.Format ("( {1} ) {0} ",toComp.memberName, toComp.value.GetType().Name);
+
+					EditorGUILayout.BeginHorizontal();
+					EditorGUILayout.LabelField(msg);
+					EditorGUILayout.ObjectField((Object)toComp.value, toComp.value.GetType(), true);
+					EditorGUILayout.EndHorizontal();
 				}
 
-				string msg = string.Format ("( {1} ) {0} ",referenceObject.memberName, referenceObject.value.GetType().Name);
+				foreach( var compName in perhapsReferenceObjectList )
+				{
+					bool isExist = components.Exists( (item) => { return item.rootComponent == compName.comp; } );
+					if( isExist == true )
+						EditorGUILayout.LabelField(compName.typeName);
+				}
 
-				GUILayout.BeginHorizontal ();
-					EditorGUILayout.LabelField(msg);
-					EditorGUILayout.ObjectField((Object)referenceObject.value, referenceObject.value.GetType(), true);
-				GUILayout.EndHorizontal ();
+				EditorGUILayout.EndVertical();
+				EditorGUILayout.EndHorizontal();
 			}
+
 		} catch {
 			referenceObjectList.Clear ();
 		}
 
 		
 		EditorGUILayout.EndScrollView ();
+	}
+	public class PerhapsReferenceObject
+	{
+		public Component comp;
+		public string typeName;
 	}
 
 }

@@ -103,27 +103,34 @@ public class ReferenceAllObjectWindow : EditorWindow
 	
 	void OnGUI ()
 	{	
+		EditorGUILayout.BeginHorizontal();
 
-		if (GUILayout.Button ("update")) {
+		if (GUILayout.Button ("update", EditorStyles.toolbarButton, GUILayout.Width(Screen.width / 2))) {
 			UpdateAllObject ();
 			UpdateList ();
+
+			if( EditorApplication.isPlaying == true )
+				EditorApplication.isPaused = true;
 		}
 
 		if (EditorApplication.isPlaying && !EditorApplication.isPaused) {
-			if (GUILayout.Button ("pause")) {
+			if (GUILayout.Button ("pause",EditorStyles.toolbarButton, GUILayout.Width(Screen.width / 2))) {
 				EditorApplication.isPaused = true;
 				UpdateList ();
 			}
 			return;
 		}
 
-		if (isHiding == false && GUILayout.Button ("hide")) {
+
+		if (isHiding == false && GUILayout.Button ("hide", EditorStyles.toolbarButton, GUILayout.Width(Screen.width / 2))) {
 			HideNoCommunication ();
 		}
 
-		if (isHiding == true && GUILayout.Button ("show")) {
+		if (isHiding == true && GUILayout.Button ("show", EditorStyles.toolbarButton, GUILayout.Width(Screen.width / 2))) {
 			ShowAllObject ();
 		}
+
+		EditorGUILayout.EndHorizontal();
 
 		GUIStyle styles = new GUIStyle ();
 		styles.margin.left = 10;
@@ -135,7 +142,70 @@ public class ReferenceAllObjectWindow : EditorWindow
 		
 		
 		try {
-			
+
+
+			bool isHolizon = false;
+
+			for( int i=0; i<refObjectList.Count; i++)
+			{
+
+				var referenceObject = refObjectList[i];
+				GameObject rootObject = referenceObject.rootComponent.gameObject;
+				GameObject targetObject = null;
+				
+				if (referenceObject.value is Component)
+					targetObject = ((Component)referenceObject.value).gameObject;
+				if (referenceObject.value is GameObject)
+					targetObject = (GameObject)referenceObject.value;
+
+				EditorGUILayout.BeginHorizontal("box", GUILayout.Width(Screen.width  - 12));
+
+				EditorGUILayout.ObjectField (
+					referenceObject.rootComponent.gameObject, 
+					referenceObject.GetType (),
+					GUILayout.Width(100));
+				preGameObjectID = refObjectList[i].rootComponent.GetInstanceID();
+
+				EditorGUILayout.BeginVertical();
+
+				for(; i< refObjectList.Count && preGameObjectID == refObjectList[i].rootComponent.GetInstanceID(); i++)
+				{
+					preGameObjectID = refObjectList[i].rootComponent.GetInstanceID();
+
+					referenceObject = refObjectList[i];
+					rootObject = referenceObject.rootComponent.gameObject;
+					targetObject = null;
+					
+					if (referenceObject.value is Component)
+						targetObject = ((Component)referenceObject.value).gameObject;
+					if (referenceObject.value is GameObject)
+						targetObject = (GameObject)referenceObject.value;
+
+					string msg  = string.Empty;
+
+					try{
+						msg = string.Format ("{2}.{1} -> ({0}) {3}", 
+					                            referenceObject.value.GetType ().Name, 
+					                            referenceObject.memberName, 
+					                            referenceObject.rootComponent.GetType ().Name,
+					                            targetObject.name);
+					}catch{
+						msg = "";
+					}
+					if (GUILayout.Button (msg, styles)) {
+						EditorGUIUtility.PingObject (targetObject);
+					}
+
+				}
+
+				GUILayout.Space(5);
+
+				EditorGUILayout.EndVertical();
+
+				EditorGUILayout.EndHorizontal();
+			}
+
+			/*
 			foreach (var referenceObject in refObjectList) {
 
 				try {
@@ -147,12 +217,16 @@ public class ReferenceAllObjectWindow : EditorWindow
 						targetObject = ((Component)referenceObject.value).gameObject;
 					if (referenceObject.value is GameObject)
 						targetObject = (GameObject)referenceObject.value;
-				 
+
+
 					if (preGameObjectID != rootObject.GetInstanceID ()) {
 						preGameObjectID = rootObject.GetInstanceID ();
 						EditorGUILayout.Space ();
 						EditorGUILayout.ObjectField (referenceObject.rootComponent.gameObject, referenceObject.GetType ());
 					}
+
+
+
 				
 					string msg = string.Format ("{2}.{1} -> ({0}) {3}", 
 				                            referenceObject.value.GetType ().Name, 
@@ -160,8 +234,8 @@ public class ReferenceAllObjectWindow : EditorWindow
 				                            referenceObject.rootComponent.GetType ().Name,
 				                            targetObject.name);
 				
-				
 					GUILayout.BeginHorizontal ();
+
 					GUILayout.Label (EditorGUIUtility.ObjectContent (null, typeof(ReferenceObject)).image, GUILayout.Height (16), GUILayout.Width (16));
 					if (GUILayout.Button (msg, styles)) {
 						EditorGUIUtility.PingObject (targetObject);
@@ -170,9 +244,11 @@ public class ReferenceAllObjectWindow : EditorWindow
 				} catch (UnassignedReferenceException) {
 				} catch (MissingReferenceException){}
 			}
+			*/
 		}catch (UnityEngine.ExitGUIException e){
+			Debug.LogWarning (e.ToString ());
 		} catch (System.Exception e) {
-			Debug.Log (e.ToString ());
+			Debug.LogWarning (e.ToString ());
 			refObjectList.Clear ();
 		}
 
