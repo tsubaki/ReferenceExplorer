@@ -13,7 +13,7 @@ public class FromObjectReferenceWindow :  EditorWindow
 	List<ReferenceObject> referenceObjectList = new List<ReferenceObject>();
 
 
-	[MenuItem("Window/Referenced/from object")]
+	[MenuItem("Window/Referenced/From Object")]
 	static void Init () {
 		var window = GetWindow( typeof(FromObjectReferenceWindow));
 		window.title = "from";

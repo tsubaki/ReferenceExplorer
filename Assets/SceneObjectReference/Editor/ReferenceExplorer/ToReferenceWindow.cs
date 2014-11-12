@@ -9,7 +9,7 @@ namespace ReferenceExplorer
 	public class ToReferenceWindow : EditorWindow
 	{
 
-		[MenuItem("Window/Referenced/to object")]
+		[MenuItem("Window/Referenced/To Object")]
 		static void Init ()
 		{
 			var window = GetWindow (typeof(ToReferenceWindow));
@@ -55,26 +55,26 @@ namespace ReferenceExplorer
 
 			// analytics  source code.
 
-//			foreach (var component in  obj.GetComponents<MonoBehaviour>()) {
-//				foreach (var text in MonoScript.FromMonoBehaviour(component).text.Split(';')) {
-//					Match m = Regex.Match (text, "GetComponent\\<(?<call>.*?)\\>");
-//					if (m.Success) {
-//						var methodName = m.Groups ["call"].ToString ();
-//						if( perhapsReferenceObjectList.Find((item) =>
-//						{
-//							return item.comp == component || item.typeName == methodName ;
-//						}) == null)
-//						{
-//							var method = new PerhapsReferenceObject ()
-//						{
-//							comp = component,
-//							typeName = methodName
-//						};
-//							perhapsReferenceObjectList.Add (method);
-//						}
-//					}
-//				}
-//			}
+			foreach (var component in  obj.GetComponents<MonoBehaviour>()) {
+				foreach (var text in MonoScript.FromMonoBehaviour(component).text.Split(';')) {
+					Match m = Regex.Match (text, "GetComponent\\<(?<call>.*?)\\>");
+					if (m.Success) {
+						var methodName = m.Groups ["call"].ToString ();
+						if( perhapsReferenceObjectList.Find((item) =>
+						{
+							return item.comp == component || item.typeName == methodName ;
+						}) == null)
+						{
+							var method = new PerhapsReferenceObject ()
+						{
+							comp = component,
+							typeName = methodName
+						};
+							perhapsReferenceObjectList.Add (method);
+						}
+					}
+				}
+			}
 		}
 
 		void OnSceneGUI (SceneView sceneView)
@@ -98,6 +98,9 @@ namespace ReferenceExplorer
 				if (obj == Selection.activeGameObject) {
 					continue;
 				}
+
+				if( PrefabUtility.GetPrefabType( obj ) == PrefabType.Prefab )
+					continue;
 			
 			
 				var startPosition = selection.transform.position;

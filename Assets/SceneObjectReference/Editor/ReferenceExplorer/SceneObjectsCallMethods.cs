@@ -138,7 +138,7 @@ namespace ReferenceExplorer
 			return list;
 		}
 
-		void GetSendMessageMethods (GameObject obj)
+		void GetSendMessageMethods ()
 		{
 			foreach (var component in  GameObject.FindObjectsOfType<MonoBehaviour>()) {
 				foreach (var text in MonoScript.FromMonoBehaviour(component).text.Split(';')) {
@@ -201,7 +201,7 @@ namespace ReferenceExplorer
 			return true;
 		}
 	
-		[MenuItem("Window/Referenced/callbacks")]
+		[MenuItem("Window/Referenced/Callbacks")]
 		static void Init ()
 		{
 			var window = GetWindow (typeof(SceneObjectsCallMethods)) as SceneObjectsCallMethods;
@@ -211,9 +211,6 @@ namespace ReferenceExplorer
 	
 		void Find ()
 		{
-			var obj = Selection.activeGameObject;
-			if (obj == null)
-				return;
 			methdoList.Clear ();
 
 			RegisterDefaultCallback ();
@@ -221,7 +218,7 @@ namespace ReferenceExplorer
 			foreach (var anim in FindObjectsOfType<Animator>()) {
 				GetAnimationEvents (anim);
 			}
-			GetSendMessageMethods (obj);
+			GetSendMessageMethods ();
 
 
 			foreach (var item in methdoList.ToArray()) {
@@ -230,8 +227,6 @@ namespace ReferenceExplorer
 				if (count == 0)
 					methdoList.Remove (item);
 			}
-
-
 		}
 
 		/*
@@ -252,6 +247,7 @@ namespace ReferenceExplorer
 		{
 			Find ();
 			UpdateComponentHaveCallbackList ();
+			Repaint();
 		}
 
 		void OnGUI ()
@@ -263,8 +259,17 @@ namespace ReferenceExplorer
 			GUIStyle labelStyle = new GUIStyle (buttonStyle);
 			labelStyle.fontSize = 24;
 
+			EditorGUILayout.BeginHorizontal();
+
+			if( GUILayout.Button("Update", EditorStyles.toolbarButton ) )
+			{	
+				Find ();
+				UpdateComponentHaveCallbackList ();
+				Repaint();
+			}
 			callType = (CallType)EditorGUILayout.EnumPopup( callType, EditorStyles.toolbarPopup);
 
+			EditorGUILayout.EndHorizontal();
 
 
 			findMethodName = EditorGUILayout.TextField ("extra callback", findMethodName, GUILayout.Width (Screen.width - 8));

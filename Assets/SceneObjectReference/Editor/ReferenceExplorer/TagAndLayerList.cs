@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace ReferenceExplorer
 {
-	public class TagList : EditorWindow
+	public class TagAndLayerList : EditorWindow
 	{
 	
 		Vector2 current;
@@ -16,7 +16,7 @@ namespace ReferenceExplorer
 		[MenuItem("Window/Referenced/Tag and Layer")]
 		static void Init ()
 		{
-			var window = GetWindow (typeof(TagList)) as TagList;
+			var window = GetWindow (typeof(TagAndLayerList)) as TagAndLayerList;
 			window.title = "tags";
 			window.FindTags ();
 			window.Show ();

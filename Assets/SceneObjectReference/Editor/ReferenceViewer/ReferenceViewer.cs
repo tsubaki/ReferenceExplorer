@@ -20,7 +20,7 @@ namespace ReferenceViewer
 
         static Dictionary<string, bool> foldouts = new Dictionary<string, bool>();
 
-        [MenuItem("Window/ReferenceViewer")]
+		[MenuItem("Window/Referenced/Asset Reference")]
         private static void Open()
         {
             GetWindow<ReferenceViewer>();
@@ -54,10 +54,7 @@ namespace ReferenceViewer
             }
             else
             {
-                if (EditorUtility.DisplayDialog("必要なデータがありません", "データを作成します。\nデータ作成に時間がかかりますがよろしいですか？", "はい", "いいえ"))
-                {
-                    Creator.Build(find);
-                }
+                Creator.Build(find);
             }
         }
 

@@ -10,7 +10,7 @@ namespace ReferenceExplorer
 		List<ReferenceObject> refObjectList = new List<ReferenceObject> ();
 		Vector2 current = new Vector2 ();
 		
-		[MenuItem("Window/Referenced/All reference objects")]
+		[MenuItem("Window/Referenced/All Reference Objects")]
 		static void Init ()
 		{
 			var window = GetWindow (typeof(ReferenceAllObjectWindow));
@@ -140,8 +140,6 @@ namespace ReferenceExplorer
 					}
 				}
 
-				
-				
 				for (int i=0; i<refObjectList.Count; i++) {
 					
 					var referenceObject = refObjectList [i];
