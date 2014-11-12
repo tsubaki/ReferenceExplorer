@@ -1,8 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEditor;
-using terasurware;
 using System.Collections.Generic;
+
+namespace ReferenceExplorer
+{
 
 public class LayerList : EditorWindow
 {
@@ -93,3 +95,4 @@ public class LayerList : EditorWindow
 	}
 }
 
+}

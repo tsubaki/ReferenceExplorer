@@ -4,7 +4,7 @@ using UnityEditor;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace terasurware
+namespace ReferenceExplorer
 {
 	public class SceneObjectUtility
 	{

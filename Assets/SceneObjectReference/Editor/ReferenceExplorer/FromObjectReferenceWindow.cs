@@ -2,7 +2,9 @@
 using System.Collections;
 using UnityEditor;
 using System.Collections.Generic;
-using terasurware;
+
+namespace ReferenceExplorer
+{
 
 public class FromObjectReferenceWindow :  EditorWindow 
 {
@@ -155,5 +157,7 @@ public class FromObjectReferenceWindow :  EditorWindow
 
 		EditorGUILayout.EndScrollView();
 	}
+
+}
 
 }

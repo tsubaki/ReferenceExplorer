@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-namespace terasurware
+namespace ReferenceExplorer
 {
 	public class ReferenceObject  
 	{
