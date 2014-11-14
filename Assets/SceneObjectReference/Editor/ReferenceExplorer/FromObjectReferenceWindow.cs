@@ -13,14 +13,21 @@ namespace ReferenceExplorer
 
 		Texture fromRefImage;
 
-		[MenuItem("Window/Referenced/From Object")]
+		public bool ignoreSelfReference = false;
+
+
+		//[MenuItem("Window/Referenced/From Object")]
 		static void Init ()
 		{
 			var window = (FromObjectReferenceWindow)GetWindow (typeof(FromObjectReferenceWindow));
 			window.title = "from";
 			window.Show ();
+		}
 
-			window.fromRefImage = AssetDatabase.LoadAssetAtPath ("Assets/SceneObjectReference/Editor/fromRef.png", typeof(Texture2D)) as Texture2D;
+
+		public FromObjectReferenceWindow()
+		{
+			fromRefImage = AssetDatabase.LoadAssetAtPath ("Assets/SceneObjectReference/Editor/fromRef.png", typeof(Texture2D)) as Texture2D;
 		}
 
 		void OnEnable ()
@@ -46,11 +53,24 @@ namespace ReferenceExplorer
 			SceneObjectUtility.UpdateGlovalReferenceList ();
 		}
 	
-		void OnSelectionChange ()
+		public void OnSelectionChange ()
 		{
 			referenceObjectList.Clear ();
 			SceneObjectUtility.UpdateGlovalReferenceList ();
-			SceneObjectUtility.FindReferenceObject (Selection.activeGameObject, referenceObjectList);
+
+			foreach( var selection in Selection.gameObjects)
+			{
+				SceneObjectUtility.FindReferenceObject (selection, referenceObjectList);
+			}
+
+
+			if( ignoreSelfReference )
+			{
+				foreach( var selection in Selection.gameObjects )
+				{
+					referenceObjectList.RemoveAll( item => item.referenceComponent.gameObject == selection );
+				}
+			}
 
 			referenceObjectList.Sort ((x, y) => GetObjectID (x.referenceComponent) - GetObjectID (y.referenceComponent));
 
@@ -67,49 +87,56 @@ namespace ReferenceExplorer
 	
 		void OnSceneGUI (SceneView sceneView)
 		{
-			var selection = Selection.activeGameObject as GameObject;
-			if (selection == null)
+			if( Selection.activeGameObject == null )
 				return;
 
+			foreach( var selection in Selection.gameObjects)
+			{
+				SceneGuiLineWriter(selection);
+			}
+		}
+
+		void SceneGuiLineWriter(GameObject selection)
+		{
 			var cameraTransform = SceneView.currentDrawingSceneView.camera.transform;
 			var rotate = cameraTransform.rotation;
 			var cameraPos = cameraTransform.position;
-		
+			
 			Color shadowCol = new Color (0, 0, 0.5f, 0.06f);
-		
-			var enableTypeList = refCompItems.FindAll( item => item.isDisplay );
+			
+			var enableTypeList = refCompItems.FindAll( item => item.isDisplay == true );
 
-			foreach (var refs in referenceObjectList) {
+			//referenceObjectList.RemoveAll( item => (item is Component) == false);
+			
+			foreach (var refs in referenceObjectList.FindAll(item => ((Component)item.value).gameObject == selection )) {
 
-				if( !enableTypeList.Exists( item => item.componentType == refs.referenceComponent.GetType () ) )
-					continue;
 
 				var obj = SceneObjectUtility.GetGameObject (refs.referenceComponent);
-			
+				
 				var startPosition = selection.transform.position;
 				var endPosition = obj.transform.position;
-
+				
 				var size = Vector3.Distance (endPosition, cameraPos) * 0.02f;
-			
+				
 				if (startPosition == endPosition)
 					continue;
-			
+				
 				Handles.color = Color.blue;
-			
+				
 				var diffPos = startPosition - endPosition;
 				var tan = new Vector3 (diffPos.y, diffPos.x, diffPos.z);
-			
-			
+				
+				
 				var startTan = startPosition;
 				var endTan = endPosition + tan * 0.4f;
-			
+				
 				Handles.CircleCap (1, endPosition, rotate, size);
-
+				
 				for (int i=0; i<3; i++)
 					Handles.DrawBezier (startPosition, endPosition, startTan, endTan, shadowCol, null, (i + 1) * 5);
 				Handles.DrawBezier (startPosition, endPosition, startTan, endTan, Color.blue, null, 1);
 				Handles.Label (endPosition, obj.name);
-			}
+			}	
 		}
 
 		int GetObjectID (object obj)
@@ -122,25 +149,26 @@ namespace ReferenceExplorer
 			return -1;
 		}
 	
-		void OnGUI ()
+		public void OnGUI ()
 		{	
 			GUIStyle styles = new GUIStyle ();
 			styles.margin.left = 10;
 			styles.margin.top = 5;
 
-			current = EditorGUILayout.BeginScrollView (current);
-
-
 			EditorGUILayout.BeginHorizontal("box");
 			
 			var iconSize = EditorGUIUtility.GetIconSize();
-			EditorGUIUtility.SetIconSize(new Vector2(22, 16));
+			EditorGUIUtility.SetIconSize(new Vector2(16, 16));
 			GUILayout.Label(fromRefImage);
 			EditorGUIUtility.SetIconSize(iconSize);
 			
 			EditorGUILayout.LabelField("Reference from any objects");
 			
 			EditorGUILayout.EndHorizontal();
+
+			current = EditorGUILayout.BeginScrollView (current);
+
+
 
 			try {
 
@@ -151,7 +179,10 @@ namespace ReferenceExplorer
 					EditorGUILayout.BeginVertical ("box");
 
 					EditorGUILayout.BeginHorizontal();
+					EditorGUI.BeginChangeCheck();
 					type.isDisplay = EditorGUILayout.Foldout (type.isDisplay, type.componentType.Name);
+					if( EditorGUI.EndChangeCheck() )
+						SceneView.RepaintAll();
 
 					EditorGUILayout.EndHorizontal();
 
@@ -175,7 +206,6 @@ namespace ReferenceExplorer
 						EditorGUILayout.EndHorizontal ();
 					}
 					EditorGUILayout.EndVertical ();
-					//EditorGUILayout.EndHorizontal ();
 
 					EditorGUI.indentLevel = 0;
 

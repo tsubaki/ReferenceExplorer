@@ -9,14 +9,19 @@ namespace ReferenceExplorer
 	public class ToReferenceWindow : EditorWindow
 	{
 
-		[MenuItem("Window/Referenced/To Object")]
+		//[MenuItem("Window/Referenced/To Object")]
 		static void Init ()
 		{
 			var window = (ToReferenceWindow)GetWindow (typeof(ToReferenceWindow));
 			window.title = "to";
 			window.Show ();
+		}
 
-			window.toRefImage = AssetDatabase.LoadAssetAtPath ("Assets/SceneObjectReference/Editor/toRef.png", typeof(Texture2D)) as Texture2D;
+
+
+		public ToReferenceWindow()
+		{
+			toRefImage = AssetDatabase.LoadAssetAtPath ("Assets/SceneObjectReference/Editor/toRef.png", typeof(Texture2D)) as Texture2D;
 		}
 
 		List<ReferenceObject> referenceObjectList = new List<ReferenceObject> ();
@@ -24,7 +29,9 @@ namespace ReferenceExplorer
 		List<ReferenceObjectItem> refCompItems = new List<ReferenceObjectItem>();
 
 		Texture toRefImage;
-	
+		public bool ignoreSelfReference = false;
+
+
 		void OnInspectorUpdate ()
 		{
 			Repaint ();
@@ -43,15 +50,27 @@ namespace ReferenceExplorer
 		
 		Vector2 current;
 
-		void OnSelectionChange ()
+		public void OnSelectionChange ()
 		{
 			referenceObjectList.Clear ();
+			perhapsReferenceObjectList.Clear ();
+
 			SceneObjectUtility.Init ();
 
-			SceneObjectUtility.GetReferenceObject (Selection.activeGameObject, referenceObjectList);
-			UpdatePerahpsReferenceObjectList (Selection.activeGameObject);
+			foreach( var selection in Selection.gameObjects )
+			{
+				SceneObjectUtility.GetReferenceObject (selection, referenceObjectList);
+				UpdatePerahpsReferenceObjectList (selection);
+			}
 
-			
+			if( ignoreSelfReference )
+			{
+				foreach( var selection in Selection.gameObjects )
+				{
+					referenceObjectList.RemoveAll( item => SceneObjectUtility.GetGameObject (item.value) == selection );
+				}
+			}
+
 			refCompItems.Clear();
 			foreach (var referenceObject in referenceObjectList) {
 				if (! refCompItems.Exists( item => item.componentType == referenceObject.referenceComponent.GetType())) {
@@ -65,7 +84,6 @@ namespace ReferenceExplorer
 
 		void UpdatePerahpsReferenceObjectList (GameObject obj)
 		{
-			perhapsReferenceObjectList.Clear ();
 			if (obj == null)
 				return;
 
@@ -97,19 +115,25 @@ namespace ReferenceExplorer
 
 		void OnSceneGUI (SceneView sceneView)
 		{
-			var selection = Selection.activeGameObject as GameObject;
-			if (selection == null)
+			if (Selection.activeGameObject == null)
 				return;
-		
-		
+
+			foreach( var selection in Selection.gameObjects )
+			{
+				SceneGuiLineWriter(selection);
+			}
+		}
+	
+		void SceneGuiLineWriter(GameObject selection )
+		{
 			var cameraTransform = SceneView.currentDrawingSceneView.camera.transform;
 			var rotate = cameraTransform.rotation;
 			var cameraPos = cameraTransform.position;
-		
+			
 			Color shadowCol = new Color (0.5f, 0, 0, 0.06f);
 			var enableTypeList = refCompItems.FindAll( item => item.isDisplay );
-
-			foreach (var target in referenceObjectList) {
+			
+			foreach (var target in referenceObjectList.FindAll(item=> item.referenceComponent.gameObject == selection)) {
 				var obj = SceneObjectUtility.GetGameObject (target.value);
 				if (obj == null) {
 					continue;
@@ -118,40 +142,40 @@ namespace ReferenceExplorer
 					continue;
 				}
 
+				
 				if( PrefabUtility.GetPrefabType( obj ) == PrefabType.Prefab )
 					continue;
-			
+				
 				if( !enableTypeList.Exists( item => item.componentType == target.referenceComponent.GetType () ) )
 					continue;
-
+				
 				var startPosition = selection.transform.position;
 				var endPosition = obj.transform.position;
-			
+				
 				var size = Vector3.Distance (endPosition, cameraPos) * 0.02f;
-			
+				
 				if (startPosition == endPosition)
 					continue;
-			
+				
 				Handles.color = Color.red;
-			
+				
 				var diffPos = startPosition - endPosition;
 				var tan = new Vector3 (diffPos.y, diffPos.x, diffPos.z);
-			
-			
+				
+				
 				var startTan = startPosition;
 				var endTan = endPosition + tan * 0.4f;
-			
+				
 				Handles.CircleCap (1, endPosition, rotate, size);
-
+				
 				for (int i=0; i<3; i++)
 					Handles.DrawBezier (startPosition, endPosition, startTan, endTan, shadowCol, null, (i + 1) * 5);
 				Handles.DrawBezier (startPosition, endPosition, startTan, endTan, Color.red, null, 1);
-			
+				
 				Handles.Label (endPosition, obj.name);
-			}
-		}
-	
-		void OnGUI ()
+			}		}
+
+		public void OnGUI ()
 		{
 			GUIStyle styles = new GUIStyle ();
 			styles.margin.left = 10;
@@ -160,7 +184,7 @@ namespace ReferenceExplorer
 			EditorGUILayout.BeginHorizontal("box");
 
 			var iconSize = EditorGUIUtility.GetIconSize();
-			EditorGUIUtility.SetIconSize(new Vector2(32, 16));
+			EditorGUIUtility.SetIconSize(new Vector2(20, 16));
 			GUILayout.Label(toRefImage);
 			EditorGUIUtility.SetIconSize(iconSize);
 
@@ -173,11 +197,17 @@ namespace ReferenceExplorer
 
 			try {
 				foreach (var type in refCompItems) {
+
 					var components = referenceObjectList.FindAll (item => item.referenceComponent.GetType() == type.componentType);
+
 					EditorGUILayout.BeginVertical ("box");
 
 					EditorGUILayout.BeginHorizontal();
+					EditorGUI.BeginChangeCheck();
 					type.isDisplay = EditorGUILayout.Foldout (type.isDisplay, type.componentType.Name);
+					if( EditorGUI.EndChangeCheck() )
+						SceneView.RepaintAll();
+
 					EditorGUILayout.EndHorizontal();
 
 					if( type.isDisplay == false ){
@@ -215,12 +245,18 @@ namespace ReferenceExplorer
 
 		
 			EditorGUILayout.EndScrollView ();
+
+
+
+
+
 		}
 		public class PerhapsReferenceObject
 		{
 			public Component comp;
 			public string typeName;
 		}
+
 
 	}
 

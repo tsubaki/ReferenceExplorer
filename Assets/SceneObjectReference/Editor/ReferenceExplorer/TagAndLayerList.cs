@@ -91,15 +91,22 @@ namespace ReferenceExplorer
 				foreach (var tagWithObject in tagWithObjectList) {
 					EditorGUI.indentLevel = 1;
 					EditorGUILayout.BeginVertical ();
+
+					EditorGUILayout.BeginHorizontal();
 					tagWithObject.isOpen = EditorGUILayout.Foldout (tagWithObject.isOpen, tagWithObject.tag); 
+
+					if( GUILayout.Button("all", EditorStyles.toolbarButton, GUILayout.Width(40)) )
+					{
+						Selection.objects = tagWithObject.objectList.ToArray();
+					}
+					
+					EditorGUILayout.EndHorizontal();
 
 					if (tagWithObject.isOpen) {			
 					
 						EditorGUI.indentLevel = 2;
 						foreach (var obj in tagWithObject.objectList) {
-							if (GUILayout.Button (obj.name, buttonStyle)) {
-								UnityEditor.EditorGUIUtility.PingObject (obj);
-							}
+							EditorGUILayout.ObjectField(obj, obj.GetType() );
 						}
 					}
 
@@ -109,20 +116,30 @@ namespace ReferenceExplorer
 			}
 			EditorGUI.indentLevel = 0;
 
+			
 			isOpenLayerList = EditorGUILayout.Foldout (isOpenLayerList, "Layers");
+
 			if (isOpenLayerList) {
 				foreach (var layerWithObject in layerWithObjectList) {
 					EditorGUI.indentLevel = 1;
 					string layerName = LayerMask.LayerToName (layerWithObject.layer);
 				
-					layerWithObject.isOpen = EditorGUILayout.Foldout (layerWithObject.isOpen, layerName); 
 				
+					EditorGUILayout.BeginHorizontal();
+					
+					layerWithObject.isOpen = EditorGUILayout.Foldout (layerWithObject.isOpen, layerName); 
+					if( GUILayout.Button("all", EditorStyles.toolbarButton, GUILayout.Width(40)) )
+					{
+						Selection.objects = layerWithObject.objectList.ToArray();
+					}
+					
+					EditorGUILayout.EndHorizontal();
+
 					EditorGUI.indentLevel = 2;
+
 					if (layerWithObject.isOpen) {
 						foreach (var obj in layerWithObject.objectList) {
-							if (GUILayout.Button (obj.name, buttonStyle)) {
-								UnityEditor.EditorGUIUtility.PingObject (obj);
-							}
+							EditorGUILayout.ObjectField(obj, obj.GetType() );
 						}
 					}
 				}
@@ -136,14 +153,14 @@ namespace ReferenceExplorer
 		{
 			public string tag;
 			public List<GameObject> objectList = new List<GameObject> ();
-			public bool isOpen = true;
+			public bool isOpen = false;
 		}
 
 		class LayerWithObject
 		{
 			public int layer;
 			public List<GameObject> objectList = new List<GameObject> ();
-			public bool isOpen = true;
+			public bool isOpen = false;
 		}
 	}
 }

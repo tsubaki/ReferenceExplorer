@@ -98,7 +98,7 @@ namespace ReferenceExplorer
 
 
 			foreach (var item in glovalReferenceList) {
-				if (refList.Exists ((r) => r == item.value)) {
+				if ( refList.Exists ( r => r == item.value)) {
 					objectList.Add (item);
 				}
 			}
@@ -251,11 +251,13 @@ namespace ReferenceExplorer
 
 		private static void AddObject (ReferenceObject refObject, List<ReferenceObject> objectList, bool isAllowSameObject)
 		{
+
 			var value = refObject.value;
 			if (value == null)
 				return;
 			
 			if (value is GameObject) {
+
 
 				var obj = value as GameObject;
 				if (obj != refObject.referenceComponent.gameObject || isAllowSameObject == true)
