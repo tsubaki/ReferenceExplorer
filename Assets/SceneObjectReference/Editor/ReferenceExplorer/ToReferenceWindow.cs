@@ -12,13 +12,18 @@ namespace ReferenceExplorer
 		[MenuItem("Window/Referenced/To Object")]
 		static void Init ()
 		{
-			var window = GetWindow (typeof(ToReferenceWindow));
+			var window = (ToReferenceWindow)GetWindow (typeof(ToReferenceWindow));
 			window.title = "to";
 			window.Show ();
+
+			window.toRefImage = AssetDatabase.LoadAssetAtPath ("Assets/SceneObjectReference/Editor/toRef.png", typeof(Texture2D)) as Texture2D;
 		}
 
 		List<ReferenceObject> referenceObjectList = new List<ReferenceObject> ();
 		List<PerhapsReferenceObject> perhapsReferenceObjectList = new List<PerhapsReferenceObject> ();
+		List<ReferenceObjectItem> refCompItems = new List<ReferenceObjectItem>();
+
+		Texture toRefImage;
 	
 		void OnInspectorUpdate ()
 		{
@@ -45,6 +50,17 @@ namespace ReferenceExplorer
 
 			SceneObjectUtility.GetReferenceObject (Selection.activeGameObject, referenceObjectList);
 			UpdatePerahpsReferenceObjectList (Selection.activeGameObject);
+
+			
+			refCompItems.Clear();
+			foreach (var referenceObject in referenceObjectList) {
+				if (! refCompItems.Exists( item => item.componentType == referenceObject.referenceComponent.GetType())) {
+					refCompItems.Add (new ReferenceObjectItem(){ 
+						componentType = referenceObject.referenceComponent.GetType(),
+						isDisplay = true,
+					});
+				}
+			}
 		}
 
 		void UpdatePerahpsReferenceObjectList (GameObject obj)
@@ -55,6 +71,7 @@ namespace ReferenceExplorer
 
 			// analytics  source code.
 
+			/*
 			foreach (var component in  obj.GetComponents<MonoBehaviour>()) {
 				foreach (var text in MonoScript.FromMonoBehaviour(component).text.Split(';')) {
 					Match m = Regex.Match (text, "GetComponent\\<(?<call>.*?)\\>");
@@ -75,6 +92,7 @@ namespace ReferenceExplorer
 					}
 				}
 			}
+			*/
 		}
 
 		void OnSceneGUI (SceneView sceneView)
@@ -89,7 +107,8 @@ namespace ReferenceExplorer
 			var cameraPos = cameraTransform.position;
 		
 			Color shadowCol = new Color (0.5f, 0, 0, 0.06f);
-		
+			var enableTypeList = refCompItems.FindAll( item => item.isDisplay );
+
 			foreach (var target in referenceObjectList) {
 				var obj = SceneObjectUtility.GetGameObject (target.value);
 				if (obj == null) {
@@ -102,7 +121,9 @@ namespace ReferenceExplorer
 				if( PrefabUtility.GetPrefabType( obj ) == PrefabType.Prefab )
 					continue;
 			
-			
+				if( !enableTypeList.Exists( item => item.componentType == target.referenceComponent.GetType () ) )
+					continue;
+
 				var startPosition = selection.transform.position;
 				var endPosition = obj.transform.position;
 			
@@ -136,45 +157,56 @@ namespace ReferenceExplorer
 			styles.margin.left = 10;
 			styles.margin.top = 5;
 
-			current = EditorGUILayout.BeginScrollView (current);
-		
-			int preGameObjectID = 0;
+			EditorGUILayout.BeginHorizontal("box");
 
-			List<Component> comps = new List<Component> ();
-			foreach (var referenceObject in referenceObjectList) {
-				if (! comps.Contains (referenceObject.rootComponent)) {
-					comps.Add (referenceObject.rootComponent);
-				}
-			}
+			var iconSize = EditorGUIUtility.GetIconSize();
+			EditorGUIUtility.SetIconSize(new Vector2(32, 16));
+			GUILayout.Label(toRefImage);
+			EditorGUIUtility.SetIconSize(iconSize);
+
+			EditorGUILayout.LabelField("reference to any objects");
+
+			EditorGUILayout.EndHorizontal();
+
+			current = EditorGUILayout.BeginScrollView (current);
+
 
 			try {
-				foreach (var refObj in comps) {
-					var components = referenceObjectList.FindAll ((item) => {
-						return item.rootComponent == refObj;
-					});
-					EditorGUILayout.BeginHorizontal ("box", GUILayout.Width (Screen.width * 0.96f));
+				foreach (var type in refCompItems) {
+					var components = referenceObjectList.FindAll (item => item.referenceComponent.GetType() == type.componentType);
+					EditorGUILayout.BeginVertical ("box");
 
-					GUILayout.Label (components [0].rootComponent.GetType ().Name, GUILayout.ExpandWidth (true));
+					EditorGUILayout.BeginHorizontal();
+					type.isDisplay = EditorGUILayout.Foldout (type.isDisplay, type.componentType.Name);
+					EditorGUILayout.EndHorizontal();
 
-					EditorGUILayout.BeginVertical ();
+					if( type.isDisplay == false ){
+						EditorGUILayout.EndVertical();
+						continue;
+					}
+
+					EditorGUI.indentLevel = 1;
+
+					if( components[0].referenceComponent is MonoBehaviour )
+					{
+						var monoscript = MonoScript.FromMonoBehaviour((MonoBehaviour)components[0].referenceComponent);
+						EditorGUILayout.ObjectField("script", monoscript, typeof(MonoScript), true);
+					}
+
 					foreach (var toComp in components) {
-						string msg = string.Format ("( {1} ) {0} ", toComp.memberName, toComp.value.GetType ().Name);
-
-						EditorGUILayout.BeginHorizontal ();
-						EditorGUILayout.LabelField (msg);
-						EditorGUILayout.ObjectField ((Object)toComp.value, toComp.value.GetType (), true);
-						EditorGUILayout.EndHorizontal ();
+						EditorGUILayout.ObjectField (toComp.referenceMemberName, (Object)toComp.value, toComp.value.GetType (), true);
 					}
 
 					foreach (var compName in perhapsReferenceObjectList) {
 						bool isExist = components.Exists ((item) => {
-							return item.rootComponent == compName.comp; });
+							return item.referenceComponent == compName.comp; });
 						if (isExist == true)
 							EditorGUILayout.LabelField (compName.typeName);
 					}
 
 					EditorGUILayout.EndVertical ();
-					EditorGUILayout.EndHorizontal ();
+
+					EditorGUI.indentLevel = 0;
 				}
 
 			} catch {

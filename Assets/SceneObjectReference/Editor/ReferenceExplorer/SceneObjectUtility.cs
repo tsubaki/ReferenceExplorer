@@ -19,7 +19,7 @@ namespace ReferenceExplorer
 		static readonly string[] ignoreMember =
 		{
 			"root", "parent", "particleEmitter", "rigidbody", "canvas",
-			"rigidbody2D", "camera", "light", "animation",
+			"rigidbody2D", "camera", "light", "animation", "parentInternal",
 			"constantForce", "gameObject", "guiText", "guiTexture",
 			"hingeJoint", "networkView", "particleSystem", "renderer",
 			"tag", "transform", "hideFlags", "name", "audio", "collider2D", "collider", "material", "mesh",
@@ -138,8 +138,8 @@ namespace ReferenceExplorer
 
 
 				foreach (var field in type.GetFields(
-				BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance |
-				BindingFlags.Static | BindingFlags.DeclaredOnly)) {
+					BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance |
+					BindingFlags.Static | BindingFlags.DeclaredOnly)) {
 				
 					if (IsIgnoreMember (field.FieldType, field.Name))
 						continue;
@@ -153,12 +153,13 @@ namespace ReferenceExplorer
 					
 					} else {
 						var item = new ReferenceObject (){
-						rootComponent = component,
+						referenceComponent = component,
 						value = value,
-						memberName = field.Name,
+						referenceMemberName = field.Name,
 					};
 						AddObject (item, objectList, true);
 					}
+					continue;
 				}
 
 				foreach (var ev in type.GetEvents()) {
@@ -190,9 +191,9 @@ namespace ReferenceExplorer
 								continue;
 
 							var refObject = new ReferenceObject (){
-							rootComponent = component,
+							referenceComponent = component,
 							value = c,
-							memberName = ev.Name + "(" + item.Method.Name + ")",
+							referenceMemberName = ev.Name + "(" + item.Method.Name + ")",
 						};						
 							AddObject (refObject, objectList, true);				
 						}
@@ -202,11 +203,12 @@ namespace ReferenceExplorer
 								continue;
 
 							var refObject = new ReferenceObject (){
-							rootComponent = component,
-							value = go,
-							memberName = ev.Name + "(" + item.Method.Name + ")",
-						};						
+							referenceComponent = component,
+								value = go,
+								referenceMemberName = ev.Name + "(" + item.Method.Name + ")",
+							};
 							AddObject (refObject, objectList, true);		
+							continue;
 						}
 					}
 				
@@ -228,12 +230,13 @@ namespace ReferenceExplorer
 						continue;
 
 					var item = new ReferenceObject (){
-						rootComponent = component,
+						referenceComponent = component,
 						value = value,
-						memberName = property.Name,
+						referenceMemberName = property.Name,
 					};
 						
 					AddObject (item, objectList, false);
+					continue;
 				}
 			} catch (System.Exception e) {
 				Debug.LogWarning (e.ToString ());
@@ -255,7 +258,7 @@ namespace ReferenceExplorer
 			if (value is GameObject) {
 
 				var obj = value as GameObject;
-				if (obj != refObject.rootComponent.gameObject || isAllowSameObject == true)
+				if (obj != refObject.referenceComponent.gameObject || isAllowSameObject == true)
 					objectList.Add (refObject);
 			
 			} else if (value is Component) {
@@ -265,16 +268,16 @@ namespace ReferenceExplorer
 				if (component == null)
 					return;
 
-				if (component.gameObject != refObject.rootComponent.gameObject || isAllowSameObject == true)
+				if (component.gameObject != refObject.referenceComponent.gameObject || isAllowSameObject == true)
 					objectList.Add (refObject);
 
 			} else if (value is ICollection) {
 
 				foreach (var item in (ICollection)value) {
 					var nestItem = new ReferenceObject (){
-						rootComponent = refObject.rootComponent,
+						referenceComponent = refObject.referenceComponent,
 						value = item,
-						memberName = refObject.memberName,
+						referenceMemberName = refObject.referenceMemberName,
 					};
 					AddObject (nestItem, objectList, isAllowSameObject);
 				}

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using UnityEditor;
 using System.Collections.Generic;
@@ -52,7 +52,7 @@ namespace ReferenceExplorer
 			
 			foreach (var item in refObjectList) {
 				
-				ParentShow (item.rootComponent.transform);
+				ParentShow (item.referenceComponent.transform);
 				if (item.value == null)
 					continue;
 				
@@ -88,7 +88,7 @@ namespace ReferenceExplorer
 				SceneObjectUtility.GetReferenceObject (obj, refObjectList);
 			}
 			refObjectList.Sort ((x,y) => {
-				return x.rootComponent.GetInstanceID () - y.rootComponent.GetInstanceID (); });
+				return x.referenceComponent.GetInstanceID () - y.referenceComponent.GetInstanceID (); });
 		}
 		
 		void OnGUI ()
@@ -135,8 +135,8 @@ namespace ReferenceExplorer
 				
 				List<Component> comps = new List<Component> ();
 				foreach (var referenceObject in refObjectList) {
-					if (! comps.Contains (referenceObject.rootComponent)) {
-						comps.Add (referenceObject.rootComponent);
+					if (! comps.Contains (referenceObject.referenceComponent)) {
+						comps.Add (referenceObject.referenceComponent);
 					}
 				}
 
@@ -151,20 +151,34 @@ namespace ReferenceExplorer
 						targetObject = (GameObject)referenceObject.value;
 					
 					EditorGUILayout.BeginHorizontal ("box", GUILayout.Width (Screen.width - 12));
-					
+
+					EditorGUILayout.BeginVertical();
+
 					EditorGUILayout.ObjectField (
-						referenceObject.rootComponent.gameObject, 
+						referenceObject.referenceComponent.gameObject, 
 						referenceObject.GetType (),
 						GUILayout.Width (100));
-					preGameObjectID = refObjectList [i].rootComponent.GetInstanceID ();
-					
+					preGameObjectID = refObjectList [i].referenceComponent.GetInstanceID ();
+
+					EditorGUILayout.BeginHorizontal();
+
+					if( referenceObject.referenceComponent is MonoBehaviour )
+						{
+							var comp = MonoScript.FromMonoBehaviour((MonoBehaviour) referenceObject.referenceComponent  );
+							EditorGUILayout.ObjectField(comp, typeof(MonoScript));
+						}else{
+							EditorGUILayout.LabelField( referenceObject.referenceComponent.GetType().Name );
+						}
+
+
+
 					EditorGUILayout.BeginVertical ();
 					
-					for (; i< refObjectList.Count && preGameObjectID == refObjectList[i].rootComponent.GetInstanceID(); i++) {
-						preGameObjectID = refObjectList [i].rootComponent.GetInstanceID ();
+					for (; i< refObjectList.Count && preGameObjectID == refObjectList[i].referenceComponent.GetInstanceID(); i++) {
+						preGameObjectID = refObjectList [i].referenceComponent.GetInstanceID ();
 						
 						referenceObject = refObjectList [i];
-						GameObject rootObject = referenceObject.rootComponent.gameObject;
+						GameObject rootObject = referenceObject.referenceComponent.gameObject;
 						targetObject = null;
 						
 						if (referenceObject.value is Component)
@@ -172,27 +186,26 @@ namespace ReferenceExplorer
 						if (referenceObject.value is GameObject)
 							targetObject = (GameObject)referenceObject.value;
 						
-						string msg = string.Empty;
-						
-						try {
-							msg = string.Format ("{2}.{1} -> ({0}) {3}", 
-							                     referenceObject.value.GetType ().Name, 
-							                     referenceObject.memberName, 
-							                     referenceObject.rootComponent.GetType ().Name,
-							                     targetObject.name);
-						} catch {
-							msg = "";
-						}
-						if (GUILayout.Button (msg, styles)) {
-							EditorGUIUtility.PingObject (targetObject);
-						}
-						
+	
+						EditorGUILayout.BeginHorizontal();
+
+						EditorGUILayout.LabelField(referenceObject.referenceMemberName, GUILayout.ExpandWidth(false));
+
+						EditorGUILayout.LabelField("->", GUILayout.Width(16));
+
+						EditorGUILayout.ObjectField(referenceObject.value as Object, referenceObject.value.GetType());
+						EditorGUILayout.EndHorizontal();
+
 					}
 					
 					GUILayout.Space (5);
 					
 					EditorGUILayout.EndVertical ();
-					
+
+					EditorGUILayout.EndHorizontal();
+
+					EditorGUILayout.EndVertical();
+
 					EditorGUILayout.EndHorizontal ();
 				}
 			} catch (UnityEngine.ExitGUIException e) {
