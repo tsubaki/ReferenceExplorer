@@ -14,7 +14,7 @@ namespace ReferenceExplorer
 			typeof(Mesh), typeof(Material), typeof(MeshFilter), typeof(MeshRenderer),
 			typeof(string), typeof(SpriteRenderer), typeof(ParticleSystem), typeof(Renderer),
 			typeof(ParticleSystemRenderer), typeof(Animator), typeof(SkinnedMeshRenderer), typeof(NavMesh),
-			typeof(Shader), typeof(AnimationCurve), typeof(Color), typeof(System.Collections.Hashtable)
+			typeof(Shader), typeof(AnimationCurve), typeof(Color)
 		};
 		static readonly string[] ignoreMember =
 		{
@@ -30,19 +30,25 @@ namespace ReferenceExplorer
 		{
 			"onRequestRebuild",
 		};
-		static ArrayList stackObjects = new ArrayList ();
-		static Component[] allComponents = new Component[0];
+		static List<Component> allComponents = new List<Component>();
 		static List<ReferenceObject> glovalReferenceList = new List<ReferenceObject> ();
 
-		public static void Init ()
+		public static Component[] SceneComponents{
+			get{ return allComponents.ToArray();}
+		}
+
+		public static ReferenceObject[] SceneReferenceObjects{
+			get{ return glovalReferenceList.ToArray(); }
+		}
+
+
+		public static void UpdateReferenceList ()
 		{
-			allComponents = CollectionAllComponent ();
-			stackObjects.Clear ();
+			CollectionAllComponent ();
 		}
 
 		public static void UpdateGlovalReferenceList ()
 		{
-
 			glovalReferenceList.Clear ();
 			foreach (var item in GetAllObjectsInScene (false)) {
 				GetReferenceObject (item, glovalReferenceList);
@@ -61,14 +67,14 @@ namespace ReferenceExplorer
 			return System.Array.Exists<string> (ignoreMember, (item) => item == checkParameterName);
 		}
 
-		public static Component[] CollectionAllComponent ()
+		public static void CollectionAllComponent ()
 		{
+			allComponents.Clear();
 			var allObject = GetAllObjectsInScene (false);
-			List<Component> allComponentList = new List<Component> ();
+
 			foreach (var obj in allObject) {
-				allComponentList.AddRange (obj.GetComponents<Component> ());
+				allComponents.AddRange (obj.GetComponents<Component> ());
 			}
-			return allComponentList.ToArray ();
 		}
 
 		public static void GetReferenceObject (GameObject activeGameObject, List<ReferenceObject> objectList)
@@ -119,6 +125,8 @@ namespace ReferenceExplorer
 		}
 		
 		static System.Action act2;
+
+
 
 		static void CollectObjectParameter (object obj, Component component, List<ReferenceObject>objectList)
 		{
@@ -218,7 +226,7 @@ namespace ReferenceExplorer
 				// property Instability
 
 				foreach (var property in type.GetProperties(
-				BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance )) {
+					BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance )) {
 					if (IsIgnoreMember (property.PropertyType, property.Name))
 						continue;
 
@@ -238,6 +246,8 @@ namespace ReferenceExplorer
 					AddObject (item, objectList, false);
 					continue;
 				}
+
+			}catch (System.ArgumentException){
 			} catch (System.Exception e) {
 				Debug.LogWarning (e.ToString ());
 
@@ -288,7 +298,14 @@ namespace ReferenceExplorer
 
 		public static List<GameObject> GetAllObjectsInScene (bool bOnlyRoot)
 		{
-			GameObject[] pAllObjects = (GameObject[])Resources.FindObjectsOfTypeAll (typeof(GameObject));
+			GameObject[] pAllObjects = null;
+
+			try{
+				pAllObjects = (GameObject[])Resources.FindObjectsOfTypeAll (typeof(GameObject));
+			}catch{
+				Debug.LogWarning("get all object faild, try again");
+				return new List<GameObject>();
+			}
 		
 			List<GameObject> pReturn = new List<GameObject> ();
 		

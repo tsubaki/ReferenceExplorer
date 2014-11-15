@@ -172,6 +172,9 @@ namespace ReferenceExplorer
 			methdoList.Add (new MethodWithObject (){ method = "OnCollisionExit2D" });
 			methdoList.Add (new MethodWithObject (){ method = "OnCollisionStay" });
 			methdoList.Add (new MethodWithObject (){ method = "OnCollisionStay2D" });
+			methdoList.Add (new MethodWithObject (){ method = "OnTriggerEnter2D" });
+			methdoList.Add (new MethodWithObject (){ method = "OnTriggerStay2D" });
+			methdoList.Add (new MethodWithObject (){ method = "OnTriggerExit2D" });
 			methdoList.Add (new MethodWithObject (){ method = "OnApplicationQuit" });
 			methdoList.Add (new MethodWithObject (){ method = "OnControllerColliderHit" });
 			methdoList.Add (new MethodWithObject (){ method = "OnGUI" });

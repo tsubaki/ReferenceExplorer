@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace ReferenceExplorer
 {
-	public class ToFromCombineWindow : EditorWindow{
+	public class SceneObjectReferenceWindow : EditorWindow{
 		
 		FromObjectReferenceWindow from;
 		ToReferenceWindow to;
@@ -17,17 +17,35 @@ namespace ReferenceExplorer
 
 		GameObject selectionObject;
 
-		[MenuItem("Window/Referenced/ToFromWindow")]
+		[MenuItem("Window/Referenced/Scene Object Reference")]
 		static void Iint()
 		{
-			var tfWindow = EditorWindow.GetWindow<ToFromCombineWindow>();
+			var tfWindow = EditorWindow.GetWindow<SceneObjectReferenceWindow>();
 			tfWindow.Show();
+		}
+
+		void OnEnable()
+		{
+			SceneView.onSceneGUIDelegate -= to.OnSceneGUI;
+			SceneView.onSceneGUIDelegate += to.OnSceneGUI;
+
+			SceneView.onSceneGUIDelegate -= from.OnSceneGUI;
+			SceneView.onSceneGUIDelegate += from.OnSceneGUI;
+
+		}
+
+		void OnDisable()
+		{
+			SceneView.onSceneGUIDelegate -= from.OnSceneGUI;
+			SceneView.onSceneGUIDelegate -= from.OnSceneGUI;
 		}
 
 		void OnSelectionChange ()
 		{
 			if( isLock )
 				return;
+
+			SceneObjectUtility.UpdateGlovalReferenceList ();
 
 
 			from.OnSelectionChange();
@@ -39,10 +57,11 @@ namespace ReferenceExplorer
 
 		void OnInspectorUpdate ()
 		{
+			SceneObjectUtility.UpdateReferenceList();
 			Repaint ();
 		}
 
-		ToFromCombineWindow()
+		SceneObjectReferenceWindow()
 		{
 			from = new FromObjectReferenceWindow();
 			to = new ToReferenceWindow();

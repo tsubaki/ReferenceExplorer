@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace ReferenceExplorer
 {
-	public class FromObjectReferenceWindow :  EditorWindow
+	public class FromObjectReferenceWindow
 	{
 		Vector2 current;
 		List<ReferenceObject> referenceObjectList = new List<ReferenceObject> ();
@@ -14,16 +14,6 @@ namespace ReferenceExplorer
 		Texture fromRefImage;
 
 		public bool ignoreSelfReference = false;
-
-
-		//[MenuItem("Window/Referenced/From Object")]
-		static void Init ()
-		{
-			var window = (FromObjectReferenceWindow)GetWindow (typeof(FromObjectReferenceWindow));
-			window.title = "from";
-			window.Show ();
-		}
-
 
 		public FromObjectReferenceWindow()
 		{
@@ -42,11 +32,6 @@ namespace ReferenceExplorer
 		{
 			SceneView.onSceneGUIDelegate -= OnSceneGUI;
 		}
-	
-		void OnInspectorUpdate ()
-		{
-			Repaint ();
-		}
 
 		void OnHierarchyChange ()
 		{
@@ -55,37 +40,10 @@ namespace ReferenceExplorer
 	
 		public void OnSelectionChange ()
 		{
-			referenceObjectList.Clear ();
-			SceneObjectUtility.UpdateGlovalReferenceList ();
-
-			foreach( var selection in Selection.gameObjects)
-			{
-				SceneObjectUtility.FindReferenceObject (selection, referenceObjectList);
-			}
-
-
-			if( ignoreSelfReference )
-			{
-				foreach( var selection in Selection.gameObjects )
-				{
-					referenceObjectList.RemoveAll( item => item.referenceComponent.gameObject == selection );
-				}
-			}
-
-			referenceObjectList.Sort ((x, y) => GetObjectID (x.referenceComponent) - GetObjectID (y.referenceComponent));
-
-			refCompItems.Clear();
-			foreach (var referenceObject in referenceObjectList) {
-				if (! refCompItems.Exists( item => item.componentType == referenceObject.referenceComponent.GetType())) {
-					refCompItems.Add (new ReferenceObjectItem(){ 
-						componentType = referenceObject.referenceComponent.GetType(),
-						isDisplay = true,
-					});
-				}
-			}
+			ReferenceUpdate();
 		}
 	
-		void OnSceneGUI (SceneView sceneView)
+		public void OnSceneGUI (SceneView sceneView)
 		{
 			if( Selection.activeGameObject == null )
 				return;
@@ -96,7 +54,7 @@ namespace ReferenceExplorer
 			}
 		}
 
-		void SceneGuiLineWriter(GameObject selection)
+		public void SceneGuiLineWriter(GameObject selection)
 		{
 			var cameraTransform = SceneView.currentDrawingSceneView.camera.transform;
 			var rotate = cameraTransform.rotation;
@@ -106,10 +64,12 @@ namespace ReferenceExplorer
 			
 			var enableTypeList = refCompItems.FindAll( item => item.isDisplay == true );
 
-			//referenceObjectList.RemoveAll( item => (item is Component) == false);
-			
-			foreach (var refs in referenceObjectList.FindAll(item => ((Component)item.value).gameObject == selection )) {
+			var referenceList = referenceObjectList.FindAll(item => SceneObjectUtility.GetGameObject(item.value) == selection );
 
+			foreach (var refs in referenceList) {
+
+				if(! enableTypeList.Exists( item => item.componentType == refs.referenceComponent.GetType()))
+					continue;
 
 				var obj = SceneObjectUtility.GetGameObject (refs.referenceComponent);
 				
@@ -137,6 +97,39 @@ namespace ReferenceExplorer
 				Handles.DrawBezier (startPosition, endPosition, startTan, endTan, Color.blue, null, 1);
 				Handles.Label (endPosition, obj.name);
 			}	
+		}
+
+		public void ReferenceUpdate()
+		{
+			referenceObjectList.Clear ();
+			
+			foreach( var selection in Selection.gameObjects)
+			{
+				SceneObjectUtility.FindReferenceObject (selection, referenceObjectList);
+			}
+			
+			
+			if( ignoreSelfReference )
+			{
+				foreach( var selection in Selection.gameObjects )
+				{
+					referenceObjectList.RemoveAll( item => item.referenceComponent.gameObject == selection );
+				}
+			}
+			
+			referenceObjectList.RemoveAll( item => (item.value is Component || item.value is GameObject) == false);
+			
+			referenceObjectList.Sort ((x, y) => GetObjectID (x.referenceComponent) - GetObjectID (y.referenceComponent));
+			
+			refCompItems.Clear();
+			foreach (var referenceObject in referenceObjectList) {
+				if (! refCompItems.Exists( item => item.componentType == referenceObject.referenceComponent.GetType())) {
+					refCompItems.Add (new ReferenceObjectItem(){ 
+						componentType = referenceObject.referenceComponent.GetType(),
+						isDisplay = true,
+					});
+				}
+			}
 		}
 
 		int GetObjectID (object obj)

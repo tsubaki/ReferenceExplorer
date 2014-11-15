@@ -6,18 +6,18 @@ using System.Text.RegularExpressions;
 
 namespace ReferenceExplorer
 {
-	public class ToReferenceWindow : EditorWindow
+	public class ToReferenceWindow
 	{
 
-		//[MenuItem("Window/Referenced/To Object")]
-		static void Init ()
+		static readonly string[] getComponentFunctionPattern = new string[]
 		{
-			var window = (ToReferenceWindow)GetWindow (typeof(ToReferenceWindow));
-			window.title = "to";
-			window.Show ();
-		}
-
-
+			"GetComponent\\<(?<call>.*?)\\>",
+			"GetComponents\\<(?<call>.*?)\\>",
+			"GetComponentInChildren\\<(?<call>.*?)\\>",
+			"GetComponentsInChildren\\<(?<call>.*?)\\>",
+			"GetComponentInParent\\<(?<call>.*?)\\>",
+			"GetComponentsInParent\\<(?<call>.*?)\\>",
+		};
 
 		public ToReferenceWindow()
 		{
@@ -30,12 +30,7 @@ namespace ReferenceExplorer
 
 		Texture toRefImage;
 		public bool ignoreSelfReference = false;
-
-
-		void OnInspectorUpdate ()
-		{
-			Repaint ();
-		}
+		public bool findWillAccessComponent = false;
 	
 		void OnEnable ()
 		{
@@ -55,13 +50,16 @@ namespace ReferenceExplorer
 			referenceObjectList.Clear ();
 			perhapsReferenceObjectList.Clear ();
 
-			SceneObjectUtility.Init ();
-
+			SceneObjectUtility.UpdateReferenceList ();
+		
 			foreach( var selection in Selection.gameObjects )
 			{
 				SceneObjectUtility.GetReferenceObject (selection, referenceObjectList);
-				UpdatePerahpsReferenceObjectList (selection);
+
+				if( findWillAccessComponent )
+					UpdatePerahpsReferenceObjectList (selection);
 			}
+
 
 			if( ignoreSelfReference )
 			{
@@ -89,31 +87,34 @@ namespace ReferenceExplorer
 
 			// analytics  source code.
 
-			/*
 			foreach (var component in  obj.GetComponents<MonoBehaviour>()) {
 				foreach (var text in MonoScript.FromMonoBehaviour(component).text.Split(';')) {
-					Match m = Regex.Match (text, "GetComponent\\<(?<call>.*?)\\>");
-					if (m.Success) {
-						var methodName = m.Groups ["call"].ToString ();
-						if( perhapsReferenceObjectList.Find((item) =>
-						{
-							return item.comp == component || item.typeName == methodName ;
-						}) == null)
-						{
-							var method = new PerhapsReferenceObject ()
-						{
-							comp = component,
-							typeName = methodName
-						};
-							perhapsReferenceObjectList.Add (method);
+
+					foreach( var methodPattern in getComponentFunctionPattern)
+					{
+						
+						Match m = Regex.Match (text, methodPattern);
+
+						if (m.Success) {
+							var methodName = m.Groups ["call"].ToString ();
+							if(! perhapsReferenceObjectList.Exists (item =>  item.comp == component && item.typeName == methodName) )
+							{
+								var method = new PerhapsReferenceObject ()
+								{
+									comp = component,
+									typeName = methodName
+								};
+								perhapsReferenceObjectList.Add (method);
+							}
 						}
 					}
 				}
 			}
-			*/
 		}
 
-		void OnSceneGUI (SceneView sceneView)
+
+
+		public void OnSceneGUI (SceneView sceneView)
 		{
 			if (Selection.activeGameObject == null)
 				return;
@@ -190,6 +191,11 @@ namespace ReferenceExplorer
 
 			EditorGUILayout.LabelField("reference to any objects");
 
+			EditorGUI.BeginChangeCheck();
+			findWillAccessComponent = EditorGUILayout.Toggle( findWillAccessComponent);
+			if( EditorGUI.EndChangeCheck())
+				OnSelectionChange();
+
 			EditorGUILayout.EndHorizontal();
 
 			current = EditorGUILayout.BeginScrollView (current);
@@ -227,11 +233,8 @@ namespace ReferenceExplorer
 						EditorGUILayout.ObjectField (toComp.referenceMemberName, (Object)toComp.value, toComp.value.GetType (), true);
 					}
 
-					foreach (var compName in perhapsReferenceObjectList) {
-						bool isExist = components.Exists ((item) => {
-							return item.referenceComponent == compName.comp; });
-						if (isExist == true)
-							EditorGUILayout.LabelField (compName.typeName);
+					foreach (var compName in perhapsReferenceObjectList.FindAll( item => item.comp.GetType() == type.componentType)) {
+						EditorGUILayout.LabelField (compName.typeName);
 					}
 
 					EditorGUILayout.EndVertical ();
@@ -245,19 +248,11 @@ namespace ReferenceExplorer
 
 		
 			EditorGUILayout.EndScrollView ();
-
-
-
-
-
 		}
 		public class PerhapsReferenceObject
 		{
 			public Component comp;
 			public string typeName;
 		}
-
-
 	}
-
 }
