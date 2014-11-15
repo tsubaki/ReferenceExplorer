@@ -86,6 +86,7 @@ namespace ReferenceExplorer
 			buttonStyle.margin.left = 50;
 			buttonStyle.margin.top = 5;
 		
+			EditorGUILayout.BeginVertical("box");
 			isOpenTagList = EditorGUILayout.Foldout (isOpenTagList, "Tags");
 			if (isOpenTagList) {
 				foreach (var tagWithObject in tagWithObjectList) {
@@ -114,9 +115,11 @@ namespace ReferenceExplorer
 
 				}
 			}
+			EditorGUILayout.EndVertical();
 			EditorGUI.indentLevel = 0;
 
-			
+
+			EditorGUILayout.BeginVertical("box");
 			isOpenLayerList = EditorGUILayout.Foldout (isOpenLayerList, "Layers");
 
 			if (isOpenLayerList) {
@@ -145,6 +148,7 @@ namespace ReferenceExplorer
 				}
 			}
 			EditorGUI.indentLevel = 0;
+			EditorGUILayout.EndVertical();
 
 			EditorGUILayout.EndScrollView ();
 		}
