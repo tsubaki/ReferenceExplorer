@@ -14,18 +14,24 @@ namespace ReferenceExplorer
 			typeof(Mesh), typeof(Material), typeof(MeshFilter), typeof(MeshRenderer),
 			typeof(string), typeof(SpriteRenderer), typeof(ParticleSystem), typeof(Renderer),
 			typeof(ParticleSystemRenderer), typeof(Animator), typeof(SkinnedMeshRenderer), typeof(NavMesh),
-			typeof(Shader), typeof(AnimationCurve), typeof(Color)
+			typeof(Shader), typeof(AnimationCurve), typeof(Color), typeof(System.Collections.Hashtable)
 		};
 		static readonly string[] ignoreMember =
 		{
 			"root", "parent", "particleEmitter", "rigidbody", "canvas",
 			"rigidbody2D", "camera", "light", "animation", "parentInternal",
-			"constantForce", "gameObject", "guiText", "guiTexture",
+			"constantForce", "gameObject", "guiText", "guiTexture", "attachedRigidbody",
 			"hingeJoint", "networkView", "particleSystem", "renderer",
 			"tag", "transform", "hideFlags", "name", "audio", "collider2D", "collider", "material", "mesh",
 			"Material", "material", "Color", "maxVolume", "minVolume", "rolloffFactor", "GetRemainingDistance",
 			"guiElement",
 		};
+
+		static readonly System.Type[] primitive =
+		{
+			typeof(int), typeof(float), typeof(short), typeof(double), typeof(long), typeof(bool)
+		};
+
 		static readonly string[] ignoreEvents =
 		{
 			"onRequestRebuild",
@@ -128,10 +134,12 @@ namespace ReferenceExplorer
 
 
 
-		static void CollectObjectParameter (object obj, Component component, List<ReferenceObject>objectList)
+		static void CollectObjectParameter (object obj, Component component, List<ReferenceObject>objectList, int hierarchy)
 		{
 			try {
-
+				hierarchy ++;
+				if( hierarchy > 3 )
+					return;
 
 				if (obj == null)
 					return;
@@ -145,6 +153,7 @@ namespace ReferenceExplorer
 					return;
 
 
+
 				foreach (var field in type.GetFields(
 					BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance |
 					BindingFlags.Static | BindingFlags.DeclaredOnly)) {
@@ -156,8 +165,20 @@ namespace ReferenceExplorer
 					if (value == null)
 						continue;
 
+					if( value is GameObject || value is Component )
+					{
+						var item = GetGameObject(value);
+						if( item == null )
+							continue;
+					}
+
+					if( System.Array.Exists<System.Type>( primitive, item => item == value.GetType() ) )
+						continue;
+
+
+
 					if (field.FieldType.GetCustomAttributes (typeof(System.SerializableAttribute), false).Length != 0) {
-						CollectObjectParameter (value, component, objectList);
+						CollectObjectParameter (value, component, objectList, hierarchy);
 					
 					} else {
 						var item = new ReferenceObject (){
@@ -256,7 +277,7 @@ namespace ReferenceExplorer
 
 		static void CollectComponentParameter (Component component, List<ReferenceObject>objectList)
 		{
-			CollectObjectParameter (component, component, objectList);
+			CollectObjectParameter (component, component, objectList, 0);
 		}
 
 		private static void AddObject (ReferenceObject refObject, List<ReferenceObject> objectList, bool isAllowSameObject)
