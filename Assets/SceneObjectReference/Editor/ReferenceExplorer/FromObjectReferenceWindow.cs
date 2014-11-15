@@ -33,6 +33,7 @@ namespace ReferenceExplorer
 			SceneView.onSceneGUIDelegate -= OnSceneGUI;
 		}
 
+
 		void OnHierarchyChange ()
 		{
 			SceneObjectUtility.UpdateGlovalReferenceList ();

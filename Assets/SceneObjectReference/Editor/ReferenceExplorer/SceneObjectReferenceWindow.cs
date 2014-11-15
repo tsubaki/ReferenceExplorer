@@ -11,7 +11,6 @@ namespace ReferenceExplorer
 		ToReferenceWindow to;
 
 		bool ignoreSelfReference = true;
-		bool isLock = false;
 
 		Texture icon;
 
@@ -42,9 +41,6 @@ namespace ReferenceExplorer
 
 		void OnSelectionChange ()
 		{
-			if( isLock )
-				return;
-
 			SceneObjectUtility.UpdateGlovalReferenceList ();
 
 
@@ -54,6 +50,8 @@ namespace ReferenceExplorer
 			selectionObject = Selection.activeGameObject;
 			icon = EditorGUIUtility.Load("Icons/Generated/PrefabNormal Icon.asset") as Texture2D;
 		}
+
+
 
 		void OnInspectorUpdate ()
 		{
@@ -75,7 +73,6 @@ namespace ReferenceExplorer
 				EditorGUILayout.BeginHorizontal();
 				{
 					ignoreSelfReference = GUILayout.Toggle(ignoreSelfReference, "ignore self", EditorStyles.toolbarButton, GUILayout.Width(70));
-					isLock =  GUILayout.Toggle(isLock, "Lock", EditorStyles.toolbarButton, GUILayout.Width(45));
 
 					if( GUILayout.Button("select child", EditorStyles.toolbarButton, GUILayout.Width(70) ) )
 					{
@@ -120,7 +117,6 @@ namespace ReferenceExplorer
 				
 				EditorGUILayout.EndHorizontal();
 			}catch{
-				isLock = false;
 			}
 		}
 	}
