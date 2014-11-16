@@ -57,7 +57,10 @@ namespace ReferenceExplorer
 				SceneObjectUtility.GetReferenceObject (selection, referenceObjectList);
 
 				if( findWillAccessComponent )
-					UpdatePerahpsReferenceObjectList (selection);
+				{
+					foreach( var component in selection.GetComponents<MonoBehaviour>() )
+						UpdatePerahpsReferenceObjectList (component, perhapsReferenceObjectList);
+				}
 			}
 
 
@@ -70,42 +73,87 @@ namespace ReferenceExplorer
 			}
 
 			refCompItems.Clear();
-			foreach (var referenceObject in referenceObjectList) {
-				if (! refCompItems.Exists( item => item.componentType == referenceObject.referenceComponent.GetType())) {
-					refCompItems.Add (new ReferenceObjectItem(){ 
-						componentType = referenceObject.referenceComponent.GetType(),
-						isDisplay = true,
-					});
+
+			if( findWillAccessComponent )
+			{
+				foreach( var selection in Selection.gameObjects )
+				{
+					foreach( var component in selection.GetComponents<MonoBehaviour>() ){
+
+						if( !refCompItems.Exists(item => item.componentType == component.GetType() ))
+						{
+							refCompItems.Add(new ReferenceObjectItem() 
+							{
+								componentType = component.GetType(),
+								isDisplay = true,
+							});
+						}
+					}
+				}
+
+
+
+			}else{
+				foreach (var referenceObject in referenceObjectList) {
+					if (! refCompItems.Exists( item => item.componentType == referenceObject.referenceComponent.GetType())) {
+						refCompItems.Add (new ReferenceObjectItem(){ 
+							componentType = referenceObject.referenceComponent.GetType(),
+							isDisplay = true,
+						});
+					}
 				}
 			}
+
 		}
 
-		void UpdatePerahpsReferenceObjectList (GameObject obj)
+		void UpdatePerahpsReferenceObjectList (MonoBehaviour component, List<PerhapsReferenceObject> list)
 		{
-			if (obj == null)
-				return;
-
 			// analytics  source code.
+			var monoScript = MonoScript.FromMonoBehaviour(component);
+			var uniqueClassList = SceneObjectUtility.SceneUniqueComponentName();
 
-			foreach (var component in  obj.GetComponents<MonoBehaviour>()) {
-				foreach (var text in MonoScript.FromMonoBehaviour(component).text.Split(';')) {
+			foreach (var text in monoScript.text.Split(';')) {
 
-					foreach( var methodPattern in getComponentFunctionPattern)
-					{
-						
-						Match m = Regex.Match (text, methodPattern);
+				foreach( var methodPattern in getComponentFunctionPattern)
+				{
+					
+					Match m = Regex.Match (text, methodPattern);
 
-						if (m.Success) {
-							var methodName = m.Groups ["call"].ToString ();
-							if(! perhapsReferenceObjectList.Exists (item =>  item.comp == component && item.typeName == methodName) )
+					if (m.Success) {
+						var className = m.Groups ["call"].ToString ();
+
+						if(! list.Exists (item =>  item.compType == component.GetType() && item.referenceMonobehaviourName == className) )
+						{
+							var method = new PerhapsReferenceObject ()
 							{
-								var method = new PerhapsReferenceObject ()
-								{
-									comp = component,
-									typeName = methodName
-								};
-								perhapsReferenceObjectList.Add (method);
-							}
+								compType = component.GetType(),
+								referenceMonobehaviourName = className,
+								monoscript = monoScript,
+							};
+							list.Add (method);
+
+							uniqueClassList.RemoveAll( item => item.Name == className );
+						}
+					}
+				}
+
+				foreach( var className in uniqueClassList)
+				{
+					if( component.GetType() == className )
+						continue;
+					var result = text.IndexOf(className.Name ) ;
+					if(result != -1 && result != 0 )
+					{
+						if(! list.Exists (item =>  item.compType == component.GetType() && item.referenceMonobehaviourName == className.Name) )
+						{
+							var method = new PerhapsReferenceObject ()
+							{
+								compType = component.GetType(),
+								referenceMonobehaviourName = className.Name,
+								monoscript = monoScript,
+							};
+							list.Add (method);
+							continue;
 						}
 					}
 				}
@@ -205,6 +253,10 @@ namespace ReferenceExplorer
 				foreach (var type in refCompItems) {
 
 					var components = referenceObjectList.FindAll (item => item.referenceComponent.GetType() == type.componentType);
+					var willRefMonobehaviourList = perhapsReferenceObjectList.FindAll( item => item.compType == type.componentType);
+
+					if( components.Count == 0 && willRefMonobehaviourList.Count == 0)
+						continue;
 
 					EditorGUILayout.BeginVertical ("box");
 
@@ -223,24 +275,34 @@ namespace ReferenceExplorer
 
 					EditorGUI.indentLevel = 1;
 
-					if( components[0].referenceComponent is MonoBehaviour )
+					if( components.Count != 0)
 					{
-						var monoscript = MonoScript.FromMonoBehaviour((MonoBehaviour)components[0].referenceComponent);
-						EditorGUILayout.ObjectField("script", monoscript, typeof(MonoScript), true);
+						if( components[0].referenceComponent is MonoBehaviour )
+						{
+							var monoscript = MonoScript.FromMonoBehaviour((MonoBehaviour)components[0].referenceComponent);
+							EditorGUILayout.ObjectField("script", monoscript, typeof(MonoScript), true);
+						}
+						foreach (var toComp in components) {
+							EditorGUILayout.ObjectField (toComp.referenceMemberName, (Object)toComp.value, toComp.value.GetType (), true);
+						}
+					}else{
+						if( willRefMonobehaviourList.Count != 0 )
+						{
+							var monoscript = willRefMonobehaviourList[0].monoscript;
+							EditorGUILayout.ObjectField("script", monoscript, typeof(MonoScript), true);
+						}
 					}
 
-					foreach (var toComp in components) {
-						EditorGUILayout.ObjectField (toComp.referenceMemberName, (Object)toComp.value, toComp.value.GetType (), true);
-					}
-
-					foreach (var compName in perhapsReferenceObjectList.FindAll( item => item.comp.GetType() == type.componentType)) {
-						EditorGUILayout.LabelField (compName.typeName);
+					foreach (var compName in willRefMonobehaviourList) {
+						EditorGUILayout.SelectableLabel (compName.referenceMonobehaviourName, GUILayout.Height(16));
 					}
 
 					EditorGUILayout.EndVertical ();
 
 					EditorGUI.indentLevel = 0;
 				}
+
+
 
 			} catch {
 				referenceObjectList.Clear ();
@@ -251,8 +313,9 @@ namespace ReferenceExplorer
 		}
 		public class PerhapsReferenceObject
 		{
-			public Component comp;
-			public string typeName;
+			public System.Type compType;
+			public string referenceMonobehaviourName;
+			public MonoScript monoscript;
 		}
 	}
 }

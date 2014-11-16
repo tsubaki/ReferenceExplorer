@@ -27,6 +27,11 @@ namespace ReferenceExplorer
 			"guiElement",
 		};
 
+		static readonly System.Type[] ignoreClassTypes =
+		{
+			typeof(Behaviour), typeof(Component), typeof(MonoBehaviour), typeof(Transform)
+		};
+
 		static readonly System.Type[] primitive =
 		{
 			typeof(int), typeof(float), typeof(short), typeof(double), typeof(long), typeof(bool)
@@ -47,6 +52,22 @@ namespace ReferenceExplorer
 			get{ return glovalReferenceList.ToArray(); }
 		}
 
+		public static List<System.Type> SceneUniqueComponentName()
+		{
+			List<System.Type> uniqueTypeList = new List<System.Type>();
+			foreach( var component in allComponents )
+			{
+				if( !uniqueTypeList.Contains( component.GetType() ) )
+					uniqueTypeList.Add(component.GetType()) ;
+			}
+
+			foreach( var removeClass in ignoreClassTypes )
+			{
+				uniqueTypeList.Remove( removeClass );
+			}
+
+			return uniqueTypeList;
+		}
 
 		public static void UpdateReferenceList ()
 		{
