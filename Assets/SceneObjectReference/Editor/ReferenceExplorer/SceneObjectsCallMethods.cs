@@ -309,15 +309,20 @@ namespace ReferenceExplorer
 				for (int i=0; i<methdoList.Count; i++) {
 					EditorGUILayout.BeginHorizontal ("box", GUILayout.Width (Screen.width - 8));
 					var methodName = methdoList [i];
+
+					EditorGUI.BeginChangeCheck();
 					var isEnable = EditorGUILayout.ToggleLeft (methodName.method, i == currentItem);
+					if( EditorGUI.EndChangeCheck() )
+					{
+						UpdateComponentHaveCallbackList ();
+					}
 
 					if (isEnable && currentItem != i) {
 						currentItem = i;
-						UpdateComponentHaveCallbackList ();
 
-						foreach (var id in componentHaveCallbackList) {
-							UnityEditor.EditorGUIUtility.PingObject (id.instanceID);
-						}
+//						foreach (var id in componentHaveCallbackList) {
+//							UnityEditor.EditorGUIUtility.PingObject (id.instanceID);
+//						}
 					}
 
 					EditorGUILayout.BeginVertical ();
@@ -327,10 +332,10 @@ namespace ReferenceExplorer
 					case CallType.call_callback_components:
 						if (i == currentItem) {
 							foreach (var obj in methodName.callComponent) {
-								if (obj == null)
-									break;
 								EditorGUILayout.ObjectField (obj.GetType ().ToString (), obj, obj.GetType ());
 							}
+							if( methodName.callComponent.Count == 0 )
+								EditorGUILayout.LabelField("Call from UnityEngine");
 						}
 						break;
 					case CallType.facility_callback_components:
