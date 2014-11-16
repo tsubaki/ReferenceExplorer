@@ -42,6 +42,7 @@ namespace ReferenceExplorer
 		public void OnSelectionChange ()
 		{
 			ReferenceUpdate();
+			UpdateCache();
 		}
 	
 		public void OnSceneGUI (SceneView sceneView)
@@ -143,6 +144,25 @@ namespace ReferenceExplorer
 			return -1;
 		}
 	
+		List<Cache> cachees = new List<Cache>();
+
+		void UpdateCache()
+		{
+			cachees.Clear();
+			foreach (var type in refCompItems) {
+
+				var c = new Cache();
+				c.type = type;
+				cachees.Add( c );
+				c.components = referenceObjectList.FindAll (item => item.referenceComponent.GetType() == type.componentType);
+
+				if( c.components[0].referenceComponent is MonoBehaviour )
+				{
+					c.monoscript = MonoScript.FromMonoBehaviour((MonoBehaviour)c.components[0].referenceComponent);
+				}
+			}
+		}
+
 		public void OnGUI ()
 		{	
 			GUIStyle styles = new GUIStyle ();
@@ -166,31 +186,30 @@ namespace ReferenceExplorer
 
 			try {
 
-				foreach (var type in refCompItems) {
+				foreach (var cache in cachees) {
 
-					var components = referenceObjectList.FindAll (item => item.referenceComponent.GetType() == type.componentType);
+					var components = cache.components;
 
 					EditorGUILayout.BeginVertical ("box");
 
 					EditorGUILayout.BeginHorizontal();
 					EditorGUI.BeginChangeCheck();
-					type.isDisplay = EditorGUILayout.Foldout (type.isDisplay, type.componentType.Name);
+					cache.type.isDisplay = EditorGUILayout.Foldout (cache.type.isDisplay, cache.type.componentType.Name);
 					if( EditorGUI.EndChangeCheck() )
 						SceneView.RepaintAll();
 
 					EditorGUILayout.EndHorizontal();
 
-					if( type.isDisplay == false ){
+					if( cache.type.isDisplay == false ){
 						EditorGUILayout.EndVertical();
 						continue;
 					}
 
 					EditorGUI.indentLevel = 1;
 
-					if( components[0].referenceComponent is MonoBehaviour )
+					if( cache.monoscript != null )
 					{
-						var monoscript = MonoScript.FromMonoBehaviour((MonoBehaviour)components[0].referenceComponent);
-						EditorGUILayout.ObjectField("script", monoscript, typeof(MonoScript), true);
+						EditorGUILayout.ObjectField("script",  cache.monoscript , typeof(MonoScript), true);
 					}
 
 
@@ -213,5 +232,12 @@ namespace ReferenceExplorer
 			EditorGUILayout.EndScrollView ();
 		}
 
+	}
+
+	class Cache
+	{
+		public ReferenceObjectItem type;
+		public MonoScript monoscript;
+		public List<ReferenceObject> components = new List<ReferenceObject>();
 	}
 }
