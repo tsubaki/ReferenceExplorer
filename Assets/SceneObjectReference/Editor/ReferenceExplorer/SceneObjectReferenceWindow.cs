@@ -33,17 +33,25 @@ namespace ReferenceExplorer
 
 		}
 
+		void OnFocus()
+		{
+			SceneObjectUtility.UpdateGlovalReferenceList ();
+		}
+
 		void OnDisable()
 		{
 			SceneView.onSceneGUIDelegate -= from.OnSceneGUI;
 			SceneView.onSceneGUIDelegate -= from.OnSceneGUI;
 		}
 
+		void OnHierarchyChange()
+		{
+			if( EditorApplication.isPlaying == false)
+				SceneObjectUtility.UpdateGlovalReferenceList ();
+		}
+
 		void OnSelectionChange ()
 		{
-			SceneObjectUtility.UpdateGlovalReferenceList ();
-
-
 			from.OnSelectionChange();
 			to.OnSelectionChange();
 
@@ -55,7 +63,6 @@ namespace ReferenceExplorer
 
 		void OnInspectorUpdate ()
 		{
-			SceneObjectUtility.UpdateReferenceList();
 			Repaint ();
 		}
 
@@ -63,6 +70,16 @@ namespace ReferenceExplorer
 		{
 			from = new FromObjectReferenceWindow();
 			to = new ToReferenceWindow();
+
+			EditorApplication.playmodeStateChanged -= PlayModeChange;
+			EditorApplication.playmodeStateChanged += PlayModeChange;
+		}
+
+		void PlayModeChange()
+		{
+			if( EditorApplication.isPaused || EditorApplication.isPlaying == false)
+					SceneObjectUtility.UpdateGlovalReferenceList ();
+
 		}
 		
 		void OnGUI()
