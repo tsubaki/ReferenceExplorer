@@ -93,7 +93,7 @@ namespace ReferenceExplorer
 
 					if( GUILayout.Button("select child", EditorStyles.toolbarButton, GUILayout.Width(70) ) )
 					{
-						var objs = Selection.activeGameObject.transform.GetComponentsInChildren<Transform>();
+						var objs = Selection.activeGameObject.transform.GetComponentsInChildren<Transform>(true);
 						List<GameObject> objList = new List<GameObject>();
 						foreach( var comp in objs )
 							objList.Add(comp.gameObject);
