@@ -166,6 +166,9 @@ namespace ReferenceExplorer
 			methdoList.Add (new MethodWithObject (){ method = "FixedUpdate" });
 			methdoList.Add (new MethodWithObject (){ method = "LateUpdate" });
 			methdoList.Add (new MethodWithObject (){ method = "OnApplicationPause" });
+			methdoList.Add (new MethodWithObject (){ method = "OnTriggerStay" });
+			methdoList.Add (new MethodWithObject (){ method = "OnTriggerEnter" });
+			methdoList.Add (new MethodWithObject (){ method = "OnTriggerExit" });
 			methdoList.Add (new MethodWithObject (){ method = "OnCollisionEnter" });
 			methdoList.Add (new MethodWithObject (){ method = "OnCollisionEnter2D" });
 			methdoList.Add (new MethodWithObject (){ method = "OnCollisionExit" });
