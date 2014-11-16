@@ -18,6 +18,8 @@ namespace ReferenceExplorer
 		static List<HaveCallbackObject> componentHaveCallbackList = new List<HaveCallbackObject> ();
 		string findMethodName = string.Empty;
 
+		bool isSelected = false;
+
 		enum CallType{
 			facility_callback_components,
 			facility_callback_object,
@@ -122,7 +124,21 @@ namespace ReferenceExplorer
 		List<HaveCallbackObject> HaveMethodComponentCount (string methodName)
 		{
 			List<HaveCallbackObject> list = new List<HaveCallbackObject> ();
-			foreach (var item in GameObject.FindObjectsOfType<MonoBehaviour>()) {
+
+			var monobehaviourList = new List<MonoBehaviour>();
+
+			if( isSelected )
+			{
+				foreach( var obj in Selection.gameObjects )
+				{
+					monobehaviourList.AddRange( obj.GetComponents<MonoBehaviour>());
+				}
+			}else{
+				monobehaviourList.AddRange(GameObject.FindObjectsOfType<MonoBehaviour>());
+			}
+			
+
+			foreach (var item in monobehaviourList) {
 				var method = item.GetType ().GetMethod (methodName, 
 			                                      System.Reflection.BindingFlags.NonPublic | 
 					System.Reflection.BindingFlags.Public |
@@ -249,6 +265,7 @@ namespace ReferenceExplorer
 			UpdateComponentHaveCallbackList ();
 		}
 
+
 		void OnHierarchyChange ()
 		{
 			Find ();
@@ -267,13 +284,18 @@ namespace ReferenceExplorer
 
 			EditorGUILayout.BeginHorizontal();
 
-			if( GUILayout.Button("Update", EditorStyles.toolbarButton ) )
-			{	
+			EditorGUI.BeginChangeCheck();
+
+			isSelected = GUILayout.Toggle(isSelected, "Select", EditorStyles.toolbarButton );
+
+			callType = (CallType)EditorGUILayout.EnumPopup( callType, EditorStyles.toolbarPopup);
+
+			if( EditorGUI.EndChangeCheck() )
+			{
 				Find ();
 				UpdateComponentHaveCallbackList ();
 				Repaint();
 			}
-			callType = (CallType)EditorGUILayout.EnumPopup( callType, EditorStyles.toolbarPopup);
 
 			EditorGUILayout.EndHorizontal();
 
