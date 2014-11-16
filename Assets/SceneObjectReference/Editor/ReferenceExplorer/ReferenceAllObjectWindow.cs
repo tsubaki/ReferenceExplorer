@@ -12,6 +12,8 @@ namespace ReferenceExplorer
 		Vector2 current = new Vector2 ();
 		static Texture2D objectIcon, toIcon, fromIcon;
 
+		bool isVisible = false;
+
 		public enum ReferenceType
 		{
 			To_Any_Objects,
@@ -19,7 +21,7 @@ namespace ReferenceExplorer
 			Components,
 		}
 
-		ReferenceType refType = ReferenceType.From_Any_Objects;
+		ReferenceType refType = ReferenceType.Components;
 		
 		[MenuItem("Window/Referenced/All Reference Objects")]
 		static void Init ()
@@ -94,9 +96,15 @@ namespace ReferenceExplorer
 
 		void OnFocus()
 		{
+			isVisible = true;
 			UpdateAllObject();
 		}
-		
+
+		void OnLostFocus()
+		{
+			isVisible = false;
+		}
+
 		void UpdateAllObject ()
 		{
 			allObject = SceneObjectUtility.GetAllObjectsInScene (false);
@@ -117,6 +125,15 @@ namespace ReferenceExplorer
 				return x.referenceComponent.GetInstanceID () - y.referenceComponent.GetInstanceID (); });
 		}
 
+		void SelectTargetComponent(MonoScript target)
+		{
+			var allObject = SceneObjectUtility.GetAllObjectsInScene(false);
+
+			var haveComponentObjects = allObject.FindAll( item => item.GetComponent(target.name) != null);
+
+			Selection.objects = haveComponentObjects.ToArray();
+		}
+
 		void OnGUIIconLabel(Texture2D icon, Vector2 size, params GUILayoutOption[] options)
 		{
 			var iconSize = EditorGUIUtility.GetIconSize();
@@ -127,6 +144,14 @@ namespace ReferenceExplorer
 
 		void OnGUIAllObjectReferenceTo()
 		{
+			if(! isVisible ){
+				EditorGUILayout.BeginHorizontal("box");
+				OnGUIIconLabel(toIcon, new Vector2(16,16));
+				EditorGUILayout.LabelField("lost focus");
+				EditorGUILayout.EndHorizontal();
+				return;
+			}
+
 			EditorGUILayout.BeginHorizontal("box");
 			OnGUIIconLabel(toIcon, new Vector2(16,16));
 			EditorGUILayout.LabelField("reference to any objects");
@@ -189,12 +214,24 @@ namespace ReferenceExplorer
 
 			foreach( var monoscript in uniqueMonoscript )
 			{
+				EditorGUILayout.BeginHorizontal();
+				if( GUILayout.Button("F", GUILayout.Width(20)) )
+					SelectTargetComponent(monoscript);
 				EditorGUILayout.ObjectField( monoscript, typeof(MonoScript));
+				EditorGUILayout.EndHorizontal();
 			}
 		}
 
 		void OnGUIAllObjectReferenceFrom()
 		{
+			if(! isVisible ){
+				EditorGUILayout.BeginHorizontal("box");
+				OnGUIIconLabel(fromIcon, new Vector2(16,16));
+				EditorGUILayout.LabelField("lost focus");
+				EditorGUILayout.EndHorizontal();
+				return;
+			}
+
 			EditorGUILayout.BeginHorizontal("box");
 			OnGUIIconLabel(fromIcon, new Vector2(16,16));
 			EditorGUILayout.LabelField("reference from any objects");
@@ -238,6 +275,8 @@ namespace ReferenceExplorer
 
 		void OnGUI ()
 		{	
+
+
 			EditorGUILayout.BeginHorizontal ();
 
 			if (isHiding == false && GUILayout.Button ("hide", EditorStyles.toolbarButton, GUILayout.Width (Screen.width / 2))) {
@@ -251,7 +290,9 @@ namespace ReferenceExplorer
 			refType = (ReferenceType) EditorGUILayout.EnumPopup( refType , EditorStyles.toolbarPopup );
 			
 			EditorGUILayout.EndHorizontal ();
-			
+
+
+
 			GUIStyle styles = new GUIStyle ();
 			styles.margin.left = 10;
 			styles.margin.top = 5;
