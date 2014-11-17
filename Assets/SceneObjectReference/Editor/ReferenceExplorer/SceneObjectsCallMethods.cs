@@ -18,12 +18,15 @@ namespace ReferenceExplorer
 		static List<HaveCallbackObject> componentHaveCallbackList = new List<HaveCallbackObject> ();
 		string findMethodName = string.Empty;
 
+		SearchSceneComponentCode search = new SearchSceneComponentCode();
+
 		bool isSelected = false;
 
 		enum CallType{
 			facility_callback_components,
 			facility_callback_object,
 			call_callback_components,
+			Search
 		};
 
 		CallType callType = CallType.call_callback_components;
@@ -263,6 +266,7 @@ namespace ReferenceExplorer
 		{
 			Find ();
 			UpdateComponentHaveCallbackList ();
+			search.OnFocus();
 		}
 
 
@@ -270,6 +274,7 @@ namespace ReferenceExplorer
 		{
 			Find ();
 			UpdateComponentHaveCallbackList ();
+			search.UpdateSearchComponent();
 			Repaint();
 		}
 
@@ -294,39 +299,60 @@ namespace ReferenceExplorer
 			{
 				Find ();
 				UpdateComponentHaveCallbackList ();
+
+				if( callType == CallType.Search )
+				{
+					search.selected = isSelected;
+					search.UpdateCalledObjectList();
+					search.UpdateSearchComponent();
+				}
 				Repaint();
 			}
 
+
 			EditorGUILayout.EndHorizontal();
 
+			EditorGUILayout.BeginVertical();
+			if( callType == CallType.Search )
+			{
+				search.OnGUI();
+			}else{
+				OnGUICallBack();
+			}
+			EditorGUILayout.EndVertical();
+		}
 
+		void OnGUICallBack()
+		{
+			
+			
 			findMethodName = EditorGUILayout.TextField ("extra callback", findMethodName, GUILayout.Width (Screen.width - 8));
-
+			
 			if (methdoList.Count != 0) {
-
+				
 				current = EditorGUILayout.BeginScrollView (current);
-
+				
 				for (int i=0; i<methdoList.Count; i++) {
 					EditorGUILayout.BeginHorizontal ("box", GUILayout.Width (Screen.width - 8));
 					var methodName = methdoList [i];
-
+					
 					EditorGUI.BeginChangeCheck();
 					var isEnable = EditorGUILayout.ToggleLeft (methodName.method, i == currentItem);
 					if( EditorGUI.EndChangeCheck() )
 					{
 						UpdateComponentHaveCallbackList ();
 					}
-
+					
 					if (isEnable && currentItem != i) {
 						currentItem = i;
-
-//						foreach (var id in componentHaveCallbackList) {
-//							UnityEditor.EditorGUIUtility.PingObject (id.instanceID);
-//						}
+						
+						//						foreach (var id in componentHaveCallbackList) {
+						//							UnityEditor.EditorGUIUtility.PingObject (id.instanceID);
+						//						}
 					}
-
+					
 					EditorGUILayout.BeginVertical ();
-
+					
 					switch( callType )
 					{
 					case CallType.call_callback_components:
@@ -339,11 +365,11 @@ namespace ReferenceExplorer
 						}
 						break;
 					case CallType.facility_callback_components:
-
+						
 						if (i == currentItem) {
-
+							
 							var monoscriptList = new List<MonoScript>();
-
+							
 							foreach( var item in componentHaveCallbackList )
 							{
 								var code = MonoScript.FromMonoBehaviour(item.component) ;
@@ -352,18 +378,18 @@ namespace ReferenceExplorer
 									monoscriptList.Add(code);
 								}
 							}
-
+							
 							foreach (var obj in monoscriptList) {
 								if (obj == null)
 									break;
 								EditorGUILayout.ObjectField(obj , typeof(MonoScript), true);
 							}
 						}
-
+						
 						break;
 					case CallType.facility_callback_object:
 						if (i == currentItem) {
-
+							
 							var objList = new List<GameObject>();
 							foreach( var item in componentHaveCallbackList )
 							{
@@ -372,25 +398,25 @@ namespace ReferenceExplorer
 									objList.Add(item.component.gameObject);
 								}
 							}
-
-
+							
+							
 							foreach (var obj in objList) {
 								if (obj == null)
 									break;
-
+								
 								EditorGUILayout.ObjectField ( obj, obj.GetType());
 							}
 						}
 						break;
 					}
-
+					
 					EditorGUILayout.EndVertical ();
-
+					
 					EditorGUILayout.EndHorizontal ();
 				}
-
+				
 				EditorGUILayout.EndScrollView ();
-			}
+			}		
 		}
 
 		class HaveCallbackObject

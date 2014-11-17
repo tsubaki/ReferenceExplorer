@@ -91,6 +91,10 @@ namespace ReferenceExplorer
 					}
 				}
 
+				foreach( var obj in referenceObjectList )
+				{
+					perhapsReferenceObjectList.RemoveAll( item => item.referenceMonobehaviourName == obj.value.GetType().Name );
+				}
 
 
 			}else{

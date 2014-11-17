@@ -9,21 +9,37 @@ namespace ReferenceExplorer
 	public class SearchSceneComponentCode : EditorWindow
 	{
 		
-		[MenuItem("Window/Referenced/Search Scene Code")]
-		static void Init ()
-		{
-			var window = GetWindow<SearchSceneComponentCode> ("code ref");
-			window.Show ();
-		}
+//		[MenuItem("Window/Referenced/Search Scene Code")]
+//		static void Init ()
+//		{
+//			var window = GetWindow<SearchSceneComponentCode> ("code ref");
+//			window.Show ();
+//		}
 		
 		List<CalledObject> calledObjectList = new List<CalledObject> ();
 		bool isRegix = true;
+		public bool selected = false;
 		
-		void UpdateCalledObjectList ()
+		public void UpdateCalledObjectList ()
 		{
 			calledObjectList.Clear ();
-			
-			foreach( var component in SceneObjectUtility.SceneComponents )
+
+
+			Component[] components = null;
+			if(selected)
+			{
+				List<Component> tempComponentList = new List<Component>();
+				foreach( var obj in Selection.gameObjects )
+				{
+					tempComponentList.AddRange((Component[])obj.GetComponents<MonoBehaviour>());
+				}
+				components = tempComponentList.ToArray();
+			}else{
+				components = SceneObjectUtility.SceneComponents;
+			}
+			Debug.Log(components.Length);
+
+			foreach( var component in components)
 			{
 				if( component is MonoBehaviour == false)
 					continue;
@@ -66,13 +82,25 @@ namespace ReferenceExplorer
 
 		Vector2 currentScroll = Vector2.zero;
 
-		void OnFocus()
+		public void OnFocus()
 		{
 			SceneObjectUtility.UpdateReferenceList();
 			UpdateCalledObjectList();
 		}
 
-		void OnGUI()
+		public void UpdateSearchComponent()
+		{
+			ComponentSearch(searchText);
+			
+			foreach( var obj in findedObjectList )
+			{
+				if( !findUniqueMonoscriptList.Exists( item => item.monoscript == obj.monoscript ) )
+					findUniqueMonoscriptList.Add(new MonoscriptType(){ monoscript = obj.monoscript,});
+			}
+
+		}
+
+		public void OnGUI()
 		{
 			{
 				EditorGUILayout.BeginHorizontal();
@@ -87,14 +115,7 @@ namespace ReferenceExplorer
 				{
 					if(! string.IsNullOrEmpty( searchText ) )
 					{
-						ComponentSearch(searchText);
-
-						foreach( var obj in findedObjectList )
-						{
-							if( !findUniqueMonoscriptList.Exists( item => item.monoscript == obj.monoscript ) )
-								findUniqueMonoscriptList.Add(new MonoscriptType(){ monoscript = obj.monoscript,});
-						}
-
+						UpdateSearchComponent();
 					}else{
 						findUniqueMonoscriptList.Clear();
 						findedObjectList.Clear();
