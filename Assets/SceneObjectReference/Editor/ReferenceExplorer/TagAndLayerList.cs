@@ -66,19 +66,24 @@ namespace ReferenceExplorer
 		
 		}
 
-		void OnFocus ()
+		public void UpdateTagAndLayers()
 		{
 			FindTags ();
 			FindLayers ();
 		}
+
+		void OnFocus ()
+		{
+			UpdateTagAndLayers();
+		}
+
 	
 		void OnHierarchyChange ()
 		{
-			FindTags ();
-			FindLayers ();
+			UpdateTagAndLayers();
 		}
 	
-		void OnGUI ()
+		public void OnGUI ()
 		{
 			current = EditorGUILayout.BeginScrollView (current);
 		

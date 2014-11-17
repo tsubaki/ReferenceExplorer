@@ -8,9 +8,11 @@ namespace ReferenceExplorer
 {
 	public class ReferenceAllObjectWindow : EditorWindow
 	{
-		List<ReferenceObject> refObjectList = new List<ReferenceObject> ();
+
 		Vector2 current = new Vector2 ();
 		static Texture2D objectIcon, toIcon, fromIcon;
+
+		TagAndLayerList tagAndLayers = new TagAndLayerList();
 
 		bool isVisible = false;
 
@@ -19,6 +21,7 @@ namespace ReferenceExplorer
 			To_Any_Objects,
 			From_Any_Objects,
 			Components,
+			TagAndLayers,
 		}
 
 		ReferenceType refType = ReferenceType.Components;
@@ -44,60 +47,20 @@ namespace ReferenceExplorer
 		}
 		
 		List<GameObject> allObject;
-		bool isHiding = false;
+
 		
-		void ParentShow (Transform parent)
+
+		void OnHierarchyChange ()
 		{
-			if (parent != null) {
-				parent.gameObject.hideFlags = HideFlags.None;
-				ParentShow (parent.parent);
-			}
+			tagAndLayers.UpdateTagAndLayers();
 		}
-		
-		void OnDestroy ()
-		{
-			ShowAllObject ();
-		}
-		
-		void HideNoCommunication ()
-		{
-			isHiding = true;
-			
-			
-			UpdateAllObject ();
-			UpdateList ();
-			foreach (var obj in allObject) {
-				obj.hideFlags = HideFlags.HideInHierarchy;
-			}
-			
-			foreach (var item in refObjectList) {
-				
-				ParentShow (item.referenceComponent.transform);
-				if (item.value == null)
-					continue;
-				
-				var obj = SceneObjectUtility.GetGameObject (item.value);
-				
-				if (obj != null)
-					ParentShow (obj.transform);
-			}
-		}
-		
-		void ShowAllObject ()
-		{
-			isHiding = false;
-			
-			UpdateAllObject ();
-			
-			foreach (var obj in allObject) {
-				obj.hideFlags = HideFlags.None;
-			}
-		}
+
 
 		void OnFocus()
 		{
 			isVisible = true;
 			UpdateAllObject();
+			tagAndLayers.UpdateTagAndLayers();
 		}
 
 		void OnLostFocus()
@@ -113,17 +76,7 @@ namespace ReferenceExplorer
 			if( SceneObjectUtility.SceneReferenceObjects.Length == 0 )
 				SceneObjectUtility.UpdateReferenceList();
 		}
-		
-		void UpdateList ()
-		{
-			refObjectList.Clear ();
-			
-			foreach (var obj in allObject) {
-				SceneObjectUtility.GetReferenceObject (obj, refObjectList);
-			}
-			refObjectList.Sort ((x,y) => {
-				return x.referenceComponent.GetInstanceID () - y.referenceComponent.GetInstanceID (); });
-		}
+
 
 		void SelectTargetComponent(MonoScript target)
 		{
@@ -279,13 +232,6 @@ namespace ReferenceExplorer
 
 			EditorGUILayout.BeginHorizontal ();
 
-			if (isHiding == false && GUILayout.Button ("hide", EditorStyles.toolbarButton, GUILayout.Width (Screen.width / 2))) {
-				HideNoCommunication ();
-			}
-			
-			if (isHiding == true && GUILayout.Button ("show", EditorStyles.toolbarButton, GUILayout.Width (Screen.width / 2))) {
-				ShowAllObject ();
-			}
 
 			refType = (ReferenceType) EditorGUILayout.EnumPopup( refType , EditorStyles.toolbarPopup );
 			
@@ -314,6 +260,9 @@ namespace ReferenceExplorer
 				case ReferenceType.Components:
 					OnGUIAllComponent();
 					break;
+				case ReferenceType.TagAndLayers:
+					tagAndLayers.OnGUI();
+					break;
 				}
 
 
@@ -321,7 +270,6 @@ namespace ReferenceExplorer
 				Debug.LogWarning (e.ToString ());
 			} catch (System.Exception e) {
 				Debug.LogWarning (e.ToString ());
-				refObjectList.Clear ();
 			}
 			
 			EditorGUILayout.EndScrollView ();

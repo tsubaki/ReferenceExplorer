@@ -13,14 +13,31 @@ namespace ReferenceExplorer
 		bool ignoreSelfReference = true;
 
 		Texture icon;
-
+		bool isHiding = false;
 		GameObject selectionObject;
+
+		
+		SceneObjectReferenceWindow()
+		{
+			from = new FromObjectReferenceWindow();
+			to = new ToReferenceWindow();
+			
+			EditorApplication.playmodeStateChanged -= PlayModeChange;
+			EditorApplication.playmodeStateChanged += PlayModeChange;
+		}
+
 
 		[MenuItem("Window/Referenced/Scene Object Reference")]
 		static void Iint()
 		{
 			var tfWindow = EditorWindow.GetWindow<SceneObjectReferenceWindow>();
 			tfWindow.Show();
+		}
+
+		void OnDestroy()
+		{
+			EditorApplication.playmodeStateChanged -= PlayModeChange;
+			AppearUnreferenceObjects();
 		}
 
 		void OnEnable()
@@ -46,8 +63,8 @@ namespace ReferenceExplorer
 
 		void OnHierarchyChange()
 		{
-			if( EditorApplication.isPlaying == false)
-				SceneObjectUtility.UpdateGlovalReferenceList ();
+			//if( EditorApplication.isPlaying == false)
+			SceneObjectUtility.UpdateGlovalReferenceList ();
 		}
 
 		void OnSelectionChange ()
@@ -66,20 +83,18 @@ namespace ReferenceExplorer
 			Repaint ();
 		}
 
-		SceneObjectReferenceWindow()
-		{
-			from = new FromObjectReferenceWindow();
-			to = new ToReferenceWindow();
-
-			EditorApplication.playmodeStateChanged -= PlayModeChange;
-			EditorApplication.playmodeStateChanged += PlayModeChange;
-		}
-
 		void PlayModeChange()
 		{
 			if( EditorApplication.isPaused || EditorApplication.isPlaying == false)
 					SceneObjectUtility.UpdateGlovalReferenceList ();
-
+			if( isHiding == true )
+			{
+				AppearUnreferenceObjects();
+				DisappearUnreferenceObjects();
+			}else{
+				DisappearUnreferenceObjects();
+				AppearUnreferenceObjects();
+			}
 		}
 		
 		void OnGUI()
@@ -91,6 +106,16 @@ namespace ReferenceExplorer
 				{
 					ignoreSelfReference = GUILayout.Toggle(ignoreSelfReference, "ignore self", EditorStyles.toolbarButton, GUILayout.Width(70));
 
+					if (isHiding == false && GUILayout.Button ("Disappear", EditorStyles.toolbarButton, GUILayout.Width (80))) {
+						DisappearUnreferenceObjects ();
+					}
+					
+					if (isHiding == true && GUILayout.Button ("Appear", EditorStyles.toolbarButton, GUILayout.Width (80))) {
+						AppearUnreferenceObjects ();
+					}
+					
+
+
 					if( GUILayout.Button("select child", EditorStyles.toolbarButton, GUILayout.Width(70) ) )
 					{
 						var objs = Selection.activeGameObject.transform.GetComponentsInChildren<Transform>(true);
@@ -100,7 +125,8 @@ namespace ReferenceExplorer
 
 						Selection.objects = objList.ToArray();
 					}
-					
+
+
 					var iconSize = EditorGUIUtility.GetIconSize();
 					EditorGUIUtility.SetIconSize(Vector2.one * 16);
 
@@ -134,6 +160,50 @@ namespace ReferenceExplorer
 				
 				EditorGUILayout.EndHorizontal();
 			}catch{
+			}
+		}
+
+		void DisappearUnreferenceObjects ()
+		{
+			isHiding = true;
+
+			var refObjectList = new List<ReferenceObject>();
+			var allObject = SceneObjectUtility.GetAllObjectsInScene (false);
+
+			foreach (var obj in allObject) {
+				obj.hideFlags = HideFlags.HideInHierarchy;
+				SceneObjectUtility.GetReferenceObject (obj, refObjectList);
+			}
+			refObjectList.Sort ((x,y) => {	return x.referenceComponent.GetInstanceID () - y.referenceComponent.GetInstanceID (); });
+
+			foreach (var item in refObjectList) {
+				
+				ParentShow (item.referenceComponent.transform);
+				if (item.value == null)
+					continue;
+				
+				var obj = SceneObjectUtility.GetGameObject (item.value);
+				
+				if (obj != null)
+					ParentShow (obj.transform);
+			}
+		}
+
+		void AppearUnreferenceObjects ()
+		{
+			isHiding = false;
+			var allObject = SceneObjectUtility.GetAllObjectsInScene (false);
+			
+			foreach (var obj in allObject) {
+				obj.hideFlags = HideFlags.None;
+			}
+		}
+
+		void ParentShow (Transform parent)
+		{
+			if (parent != null) {
+				parent.gameObject.hideFlags = HideFlags.None;
+				ParentShow (parent.parent);
 			}
 		}
 	}
