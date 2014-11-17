@@ -106,11 +106,11 @@ namespace ReferenceExplorer
 				{
 					ignoreSelfReference = GUILayout.Toggle(ignoreSelfReference, "ignore self", EditorStyles.toolbarButton, GUILayout.Width(70));
 
-					if (isHiding == false && GUILayout.Button ("Disappear", EditorStyles.toolbarButton, GUILayout.Width (80))) {
+					if (isHiding == false && GUILayout.Button ("Appear", EditorStyles.toolbarButton, GUILayout.Width (80))) {
 						DisappearUnreferenceObjects ();
 					}
 					
-					if (isHiding == true && GUILayout.Button ("Appear", EditorStyles.toolbarButton, GUILayout.Width (80))) {
+					if (isHiding == true && GUILayout.Button ("Disappear", EditorStyles.toolbarButton, GUILayout.Width (80))) {
 						AppearUnreferenceObjects ();
 					}
 					
