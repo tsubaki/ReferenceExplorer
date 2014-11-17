@@ -57,7 +57,7 @@ namespace ReferenceExplorer
 
 		void OnDisable()
 		{
-			SceneView.onSceneGUIDelegate -= from.OnSceneGUI;
+			SceneView.onSceneGUIDelegate -= to.OnSceneGUI;
 			SceneView.onSceneGUIDelegate -= from.OnSceneGUI;
 		}
 
