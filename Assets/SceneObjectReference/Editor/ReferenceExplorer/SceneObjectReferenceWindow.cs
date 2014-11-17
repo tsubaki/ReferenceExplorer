@@ -63,8 +63,8 @@ namespace ReferenceExplorer
 
 		void OnHierarchyChange()
 		{
-			//if( EditorApplication.isPlaying == false)
-			SceneObjectUtility.UpdateGlovalReferenceList ();
+			if( EditorApplication.isPlaying == false)
+				SceneObjectUtility.UpdateGlovalReferenceList ();
 		}
 
 		void OnSelectionChange ()
