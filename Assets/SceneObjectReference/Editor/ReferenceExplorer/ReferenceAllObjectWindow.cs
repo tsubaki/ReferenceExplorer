@@ -52,7 +52,8 @@ namespace ReferenceExplorer
 
 		void OnHierarchyChange ()
 		{
-			tagAndLayers.UpdateTagAndLayers();
+			if( refType == ReferenceType.TagAndLayers )
+				tagAndLayers.UpdateTagAndLayers();
 		}
 
 
@@ -60,6 +61,7 @@ namespace ReferenceExplorer
 		{
 			isVisible = true;
 			UpdateAllObject();
+
 			tagAndLayers.UpdateTagAndLayers();
 		}
 
@@ -244,9 +246,7 @@ namespace ReferenceExplorer
 			styles.margin.top = 5;
 			
 			current = EditorGUILayout.BeginScrollView (current);
-			
-			int preGameObjectID = 0;
-			
+
 			
 			try {
 				switch(refType)
