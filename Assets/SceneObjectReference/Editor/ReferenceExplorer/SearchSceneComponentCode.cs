@@ -37,7 +37,6 @@ namespace ReferenceExplorer
 			}else{
 				components = SceneObjectUtility.SceneComponents;
 			}
-			Debug.Log(components.Length);
 
 			foreach( var component in components)
 			{
