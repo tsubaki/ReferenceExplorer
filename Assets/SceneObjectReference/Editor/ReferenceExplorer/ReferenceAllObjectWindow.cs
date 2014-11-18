@@ -26,7 +26,7 @@ namespace ReferenceExplorer
 
 		ReferenceType refType = ReferenceType.Components;
 		
-		[MenuItem("Window/Referenced/All Reference Objects")]
+		[MenuItem("Window/Referenced/Scene Inspector")]
 		static void Init ()
 		{
 			var window = GetWindow (typeof(ReferenceAllObjectWindow));
