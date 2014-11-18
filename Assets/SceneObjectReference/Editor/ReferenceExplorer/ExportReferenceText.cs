@@ -38,19 +38,20 @@ namespace ReferenceExplorer
 				var list = itemDirectry[root.name];
 				list.Add(obj);
 			}
-			
+
 			foreach( var dic in itemDirectry.Keys )
 			{
 				if( dic == null )
 					continue;
+
 				var list = itemDirectry[dic];
-				
-				string subgroaph = ("subgraph " + dic.Replace("(","").Replace(")", "").Replace(" ","") + " {"  );
-				
-				exportText.AppendLine(subgroaph );
-				exportText.AppendLine("label = \"" + dic + "\";" );
-				
-				
+				list.RemoveAll( item => SceneObjectUtility.GetGameObject( item.value ) == item.referenceComponent.gameObject );
+				if( list.Count == 0 )
+					continue;
+
+				if( list.Exists( item => item.referenceComponent.gameObject.name == dic ) )
+					exportText.AppendLine(string.Format("\"{0}\" [shape = box, style = filled, color = \"#336666\", fillcolor = \"#CC9999\"]", dic));
+
 				foreach( var obj in list)
 				{
 					var baseObject = obj.referenceComponent.gameObject;
@@ -70,14 +71,10 @@ namespace ReferenceExplorer
 					exportText.AppendLine(text);
 					uniqueStrings.Add(text);
 				}
-				
-				exportText.AppendLine("}");
-				
 			}
-			
+
 			exportText.AppendLine("}");
-			
-			
+
 			File.WriteAllText("export.txt", exportText.ToString());
 		}
 	}
