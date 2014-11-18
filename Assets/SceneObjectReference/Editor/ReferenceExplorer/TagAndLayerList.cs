@@ -13,7 +13,7 @@ namespace ReferenceExplorer
 		List<LayerWithObject> layerWithObjectList = new List<LayerWithObject> ();
 		bool isOpenTagList = false, isOpenLayerList = false;
 	
-		[MenuItem("Window/Referenced/Tag and Layer")]
+		//[MenuItem("Window/Referenced/Tag and Layer")]
 		static void Init ()
 		{
 			var window = GetWindow (typeof(TagAndLayerList)) as TagAndLayerList;
