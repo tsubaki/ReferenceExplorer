@@ -236,7 +236,12 @@ namespace ReferenceExplorer
 
 
 			refType = (ReferenceType) EditorGUILayout.EnumPopup( refType , EditorStyles.toolbarPopup );
-			
+
+			if( GUILayout.Button("export", EditorStyles.toolbarButton))
+			{
+				ExportReferenceText.ExportText();
+			}
+
 			EditorGUILayout.EndHorizontal ();
 
 
