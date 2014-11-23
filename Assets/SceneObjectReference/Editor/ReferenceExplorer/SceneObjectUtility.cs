@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEditor;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace ReferenceExplorer
 {
@@ -375,5 +376,90 @@ namespace ReferenceExplorer
 			return pReturn;
 		}
 
+
+
+		public static bool AddMatchMethod (string source, Component calledComponent, string patterm, List<CallbackCallObject> callbackCallObjectList)
+		{
+			var match = Regex.Match (source, patterm);
+			if (! match.Success)
+				return false;
+			
+			var method = match.Groups ["call"].ToString ().Replace ("\"", "");
+			CallbackCallObject item = callbackCallObjectList.Find ((name) => { return name.method.Equals (method); });
+			
+			if (item == null) {
+				item = new CallbackCallObject ();
+				item.method = method;
+				callbackCallObjectList.Add (item);
+			}
+			
+			if (!item.callComponent.Exists ((comp) => { return calledComponent.Equals (comp); })) {
+				item.callComponent.Add (calledComponent);
+			}
+			return true;
+		}
+
+		public static void GetAnimationEvents (Animator animator, List<ANimationCallbackObject> callbackCallObjectList)
+		{
+			if (animator == null)
+				return;
+			
+			#if UNITY_5_0
+			var anim = (UnityEditor.Animations.AnimatorController)animator.runtimeAnimatorController;
+			
+			foreach( var clip in anim.animationClips )
+			{
+				foreach( var ev in AnimationUtility.GetAnimationEvents(clip) )
+				{
+					MethodWithObject item = methdoList.Find( (name) =>{ return name.method.Equals(ev.functionName) ; } );
+					if( item == null ){
+						item = new MethodWithObject();
+						item.method = ev.functionName;
+						methdoList.Add(item);
+					}
+					
+					if( !item.objectList.Exists( (obj)=>{ return animator.Equals(obj); } ) )
+					{
+						item.objectList.Add(animator );
+					}
+				}
+			}
+			#else
+			var anim = (UnityEditorInternal.AnimatorController)animator.runtimeAnimatorController;
+			
+			if (anim == null)
+				return;
+			
+			for (int i=0; i<anim.layerCount; i++) {
+				var layer = anim.GetLayer (i);
+				for (int r=0; r< layer.stateMachine.stateCount; r++) {
+					var state = layer.stateMachine.GetState (r);
+					var clip = state.GetMotion () as AnimationClip;
+					
+					if (clip == null)
+						continue;
+					
+					foreach (var ev in AnimationUtility.GetAnimationEvents(clip)) {
+						ANimationCallbackObject item = callbackCallObjectList.Find ((name) => {
+							return name.method.Equals (ev.functionName); });
+						if (item == null) {
+							item = new ANimationCallbackObject ();
+							item.method = ev.functionName;
+							item.clip = clip;
+							callbackCallObjectList.Add (item);
+						}
+						
+						if (!item.callComponent.Exists ((obj) => {
+							return animator.Equals (obj); })) {
+							item.callComponent.Add (animator);
+						}
+					}
+				}
+			}
+			#endif
+			
+		}
 	}
+
+
 }

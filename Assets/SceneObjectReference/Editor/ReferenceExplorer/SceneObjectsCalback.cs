@@ -8,13 +8,13 @@ using System.Text.RegularExpressions;
 namespace ReferenceExplorer
 {
 	[InitializeOnLoad]
-	public class SceneObjectsCallMethods : EditorWindow
+	public class SceneObjectsCalback : EditorWindow
 	{
 
 		Vector2 current;
 		int currentItem;
 		static Texture2D texture;
-		List<MethodWithObject> methdoList = new List<MethodWithObject> ();
+		List<CallbackCallObject> callbackCallObjectList = new List<CallbackCallObject> ();
 		static List<HaveCallbackObject> componentHaveCallbackList = new List<HaveCallbackObject> ();
 		string findMethodName = string.Empty;
 
@@ -23,13 +23,13 @@ namespace ReferenceExplorer
 		bool isSelected = false;
 
 		enum CallType{
-			facility_callback_components,
-			facility_callback_object,
-			call_callback_components,
-			Search
+			Component_Have_Callback,
+			Object_Have_Callback,
+			Component_Call_Callback,
+			Search_SourceCode
 		};
 
-		CallType callType = CallType.call_callback_components;
+		CallType callType = CallType.Component_Call_Callback;
 
 		static void HierarchyItemCB (int instanceID, Rect selectionRect)
 		{
@@ -46,7 +46,7 @@ namespace ReferenceExplorer
 			}
 		}
 
-		static SceneObjectsCallMethods ()
+		static SceneObjectsCalback ()
 		{
 			// Init
 			texture = AssetDatabase.LoadAssetAtPath ("Assets/SceneObjectReference/Editor/icon.png", typeof(Texture2D)) as Texture2D;
@@ -94,12 +94,12 @@ namespace ReferenceExplorer
 						continue;
 				
 					foreach (var ev in AnimationUtility.GetAnimationEvents(clip)) {
-						MethodWithObject item = methdoList.Find ((name) => {
+						CallbackCallObject item = callbackCallObjectList.Find ((name) => {
 							return name.method.Equals (ev.functionName); });
 						if (item == null) {
-							item = new MethodWithObject ();
+							item = new CallbackCallObject ();
 							item.method = ev.functionName;
-							methdoList.Add (item);
+							callbackCallObjectList.Add (item);
 						}
 					
 						if (!item.callComponent.Exists ((obj) => {
@@ -117,10 +117,10 @@ namespace ReferenceExplorer
 		{
 			componentHaveCallbackList.Clear ();
 
-			if (methdoList.Count <= currentItem || methdoList.Count == 0)
+			if (callbackCallObjectList.Count <= currentItem || callbackCallObjectList.Count == 0)
 				return;
 
-			var methodName = methdoList [currentItem].method;
+			var methodName = callbackCallObjectList [currentItem].method;
 			componentHaveCallbackList.AddRange (HaveMethodComponentCount (methodName));
 		}
 
@@ -176,32 +176,32 @@ namespace ReferenceExplorer
 		void RegisterDefaultCallback ()
 		{
 			if (findMethodName != "") {
-				methdoList.Add (new MethodWithObject (){ method = findMethodName});
+				callbackCallObjectList.Add (new CallbackCallObject (){ method = findMethodName});
 			}
 
-			methdoList.Add (new MethodWithObject (){ method = "Awake" });
-			methdoList.Add (new MethodWithObject (){ method = "Start" });
-			methdoList.Add (new MethodWithObject (){ method = "Update" });
-			methdoList.Add (new MethodWithObject (){ method = "FixedUpdate" });
-			methdoList.Add (new MethodWithObject (){ method = "LateUpdate" });
-			methdoList.Add (new MethodWithObject (){ method = "OnApplicationPause" });
-			methdoList.Add (new MethodWithObject (){ method = "OnTriggerStay" });
-			methdoList.Add (new MethodWithObject (){ method = "OnTriggerEnter" });
-			methdoList.Add (new MethodWithObject (){ method = "OnTriggerExit" });
-			methdoList.Add (new MethodWithObject (){ method = "OnCollisionEnter" });
-			methdoList.Add (new MethodWithObject (){ method = "OnCollisionEnter2D" });
-			methdoList.Add (new MethodWithObject (){ method = "OnCollisionExit" });
-			methdoList.Add (new MethodWithObject (){ method = "OnCollisionExit2D" });
-			methdoList.Add (new MethodWithObject (){ method = "OnCollisionStay" });
-			methdoList.Add (new MethodWithObject (){ method = "OnCollisionStay2D" });
-			methdoList.Add (new MethodWithObject (){ method = "OnTriggerEnter2D" });
-			methdoList.Add (new MethodWithObject (){ method = "OnTriggerStay2D" });
-			methdoList.Add (new MethodWithObject (){ method = "OnTriggerExit2D" });
-			methdoList.Add (new MethodWithObject (){ method = "OnApplicationQuit" });
-			methdoList.Add (new MethodWithObject (){ method = "OnControllerColliderHit" });
-			methdoList.Add (new MethodWithObject (){ method = "OnGUI" });
-			methdoList.Add (new MethodWithObject (){ method = "OnDrawGizmos" });
-			methdoList.Add (new MethodWithObject (){ method = "OnDrawGizmosSelected" });
+			callbackCallObjectList.Add (new CallbackCallObject (){ method = "Awake" });
+			callbackCallObjectList.Add (new CallbackCallObject (){ method = "Start" });
+			callbackCallObjectList.Add (new CallbackCallObject (){ method = "Update" });
+			callbackCallObjectList.Add (new CallbackCallObject (){ method = "FixedUpdate" });
+			callbackCallObjectList.Add (new CallbackCallObject (){ method = "LateUpdate" });
+			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnApplicationPause" });
+			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnTriggerStay" });
+			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnTriggerEnter" });
+			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnTriggerExit" });
+			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnCollisionEnter" });
+			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnCollisionEnter2D" });
+			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnCollisionExit" });
+			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnCollisionExit2D" });
+			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnCollisionStay" });
+			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnCollisionStay2D" });
+			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnTriggerEnter2D" });
+			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnTriggerStay2D" });
+			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnTriggerExit2D" });
+			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnApplicationQuit" });
+			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnControllerColliderHit" });
+			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnGUI" });
+			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnDrawGizmos" });
+			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnDrawGizmosSelected" });
 
 		}
 
@@ -212,12 +212,12 @@ namespace ReferenceExplorer
 				return false;
 
 			var method = match.Groups ["call"].ToString ().Replace ("\"", "");
-			MethodWithObject item = methdoList.Find ((name) => { return name.method.Equals (method); });
+			CallbackCallObject item = callbackCallObjectList.Find ((name) => { return name.method.Equals (method); });
 		
 			if (item == null) {
-				item = new MethodWithObject ();
+				item = new CallbackCallObject ();
 				item.method = method;
-				methdoList.Add (item);
+				callbackCallObjectList.Add (item);
 			}
 		
 			if (!item.callComponent.Exists ((comp) => { return calledComponent.Equals (comp); })) {
@@ -229,14 +229,14 @@ namespace ReferenceExplorer
 		[MenuItem("Window/Referenced/Callbacks")]
 		static void Init ()
 		{
-			var window = GetWindow (typeof(SceneObjectsCallMethods)) as SceneObjectsCallMethods;
+			var window = GetWindow (typeof(SceneObjectsCalback)) as SceneObjectsCalback;
 			window.title = "callback";
 			window.Show ();
 		}
 	
-		void Find ()
+		void SearchCallback ()
 		{
-			methdoList.Clear ();
+			callbackCallObjectList.Clear ();
 
 			RegisterDefaultCallback ();
 
@@ -246,25 +246,17 @@ namespace ReferenceExplorer
 			GetSendMessageMethods ();
 
 
-			foreach (var item in methdoList.ToArray()) {
+			foreach (var item in callbackCallObjectList.ToArray()) {
 				var count = HaveMethodComponentCount (item.method).Count;
 
 				if (count == 0)
-					methdoList.Remove (item);
+					callbackCallObjectList.Remove (item);
 			}
 		}
-
-		/*
-	void OnInspectorUpdate ()
-	{
-		Find ();
-		Repaint ();
-	}
-	*/
 	
 		void OnFocus ()
 		{
-			Find ();
+			SearchCallback ();
 			UpdateComponentHaveCallbackList ();
 			search.OnFocus();
 		}
@@ -272,7 +264,7 @@ namespace ReferenceExplorer
 
 		void OnHierarchyChange ()
 		{
-			Find ();
+			SearchCallback ();
 			UpdateComponentHaveCallbackList ();
 			search.UpdateSearchComponent();
 			Repaint();
@@ -291,16 +283,16 @@ namespace ReferenceExplorer
 
 			EditorGUI.BeginChangeCheck();
 
-			isSelected = GUILayout.Toggle(isSelected, "Select", EditorStyles.toolbarButton );
+			isSelected = GUILayout.Toggle(isSelected, "Search selected objects", EditorStyles.toolbarButton, GUILayout.Width(120) );
 
 			callType = (CallType)EditorGUILayout.EnumPopup( callType, EditorStyles.toolbarPopup);
 
 			if( EditorGUI.EndChangeCheck() )
 			{
-				Find ();
+				SearchCallback ();
 				UpdateComponentHaveCallbackList ();
 
-				if( callType == CallType.Search )
+				if( callType == CallType.Search_SourceCode )
 				{
 					search.selected = isSelected;
 					search.UpdateCalledObjectList();
@@ -313,7 +305,7 @@ namespace ReferenceExplorer
 			EditorGUILayout.EndHorizontal();
 
 			EditorGUILayout.BeginVertical();
-			if( callType == CallType.Search )
+			if( callType == CallType.Search_SourceCode )
 			{
 				search.OnGUI();
 			}else{
@@ -328,34 +320,29 @@ namespace ReferenceExplorer
 			
 			findMethodName = EditorGUILayout.TextField ("extra callback", findMethodName, GUILayout.Width (Screen.width - 8));
 			
-			if (methdoList.Count != 0) {
+			if (callbackCallObjectList.Count != 0) {
 				
 				current = EditorGUILayout.BeginScrollView (current);
 				
-				for (int i=0; i<methdoList.Count; i++) {
+				for (int i=0; i<callbackCallObjectList.Count; i++) {
 					EditorGUILayout.BeginHorizontal ("box", GUILayout.Width (Screen.width - 8));
-					var methodName = methdoList [i];
+					var methodName = callbackCallObjectList [i];
 					
 					EditorGUI.BeginChangeCheck();
-					var isEnable = EditorGUILayout.ToggleLeft (methodName.method, i == currentItem);
+					if( EditorGUILayout.ToggleLeft (methodName.method, i == currentItem))
+					{
+						currentItem = i;
+					}
 					if( EditorGUI.EndChangeCheck() )
 					{
 						UpdateComponentHaveCallbackList ();
 					}
-					
-					if (isEnable && currentItem != i) {
-						currentItem = i;
-						
-						//						foreach (var id in componentHaveCallbackList) {
-						//							UnityEditor.EditorGUIUtility.PingObject (id.instanceID);
-						//						}
-					}
-					
+
 					EditorGUILayout.BeginVertical ();
 					
 					switch( callType )
 					{
-					case CallType.call_callback_components:
+					case CallType.Component_Call_Callback:
 						if (i == currentItem) {
 							foreach (var obj in methodName.callComponent) {
 								EditorGUILayout.ObjectField (obj.GetType ().ToString (), obj, obj.GetType ());
@@ -364,7 +351,7 @@ namespace ReferenceExplorer
 								EditorGUILayout.LabelField("Call from UnityEngine");
 						}
 						break;
-					case CallType.facility_callback_components:
+					case CallType.Component_Have_Callback:
 						
 						if (i == currentItem) {
 							
@@ -387,7 +374,7 @@ namespace ReferenceExplorer
 						}
 						
 						break;
-					case CallType.facility_callback_object:
+					case CallType.Object_Have_Callback:
 						if (i == currentItem) {
 							
 							var objList = new List<GameObject>();
@@ -423,13 +410,6 @@ namespace ReferenceExplorer
 		{
 			public int instanceID;
 			public MonoBehaviour component;
-		}
-
-		class MethodWithObject
-		{
-			public string method;
-			public List<Component> callComponent = new List<Component> ();
-			public bool isOpen = true;
 		}
 	}
 }

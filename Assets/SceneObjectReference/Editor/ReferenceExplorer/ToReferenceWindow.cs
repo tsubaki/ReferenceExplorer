@@ -110,7 +110,7 @@ namespace ReferenceExplorer
 
 		}
 
-		void UpdatePerahpsReferenceObjectList (MonoBehaviour component, List<PerhapsReferenceObject> list)
+		public static void UpdatePerahpsReferenceObjectList (MonoBehaviour component, List<PerhapsReferenceObject> list)
 		{
 			// analytics  source code.
 			var monoScript = MonoScript.FromMonoBehaviour(component);

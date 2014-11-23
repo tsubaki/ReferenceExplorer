@@ -6,12 +6,221 @@ using System.Collections;
 using System.Text;
 using System.Collections.Generic;
 using System.IO;
+using UnityEditor;
 
 namespace ReferenceExplorer
 {
 	public class ExportReferenceText {
+
+		public enum ExportType
+		{
+			ComponentBase,
+			ObjectBase,
+		}
+
+		public static void ExportText(ExportType type)
+		{
+			string exportText = string.Empty;
+
+			switch( type )
+			{
+			case ExportType.ComponentBase:
+				exportText = ComponentBaseGraph();
+				break;
+			case ExportType.ObjectBase:
+				exportText = GameObjectBaseGraph();
+				break;
+			}
+
+			string exportFile = Path.GetFileNameWithoutExtension( UnityEditor.EditorApplication.currentScene ) + ".dot";
+			File.WriteAllText( exportFile, exportText);
+		}
+
+		static string ComponentBaseGraph()
+		{
+			List<string> uniqueStrings = new List<string>();
+			StringBuilder exportText = new StringBuilder();
+			Dictionary<string, List<ReferenceObject> > itemDirectry = new Dictionary<string, List<ReferenceObject>>();
+			List<string> ignoreType = new List<string>{"GameObject", "Transform"};
+
+			List<MonoBehaviour> monobehaviourList = new List<MonoBehaviour>();
+
+			SceneObjectUtility.UpdateGlovalReferenceList();
+			
+			exportText.AppendLine("digraph sample {");
+			exportText.AppendLine("graph [rankdir=\"LR\"]");
+			exportText.AppendLine("node [ shape = record , style=filled, fillcolor=\"#efefef\",fontname=Helvetica, fontsize=10.5, fontcolor=\"#2b2b2b\", height=0.25, width=1, penwidth=0.1 ];");
+			exportText.AppendLine("edge [arrowhead=normal,arrowsize=0.5,len=0.5, color=\"#bfbfbf\"];");
+
+
+			foreach( var obj in SceneObjectUtility.GetAllObjectsInScene(false))
+			{
+				foreach( var comp in obj.GetComponents<MonoBehaviour>())
+				{
+					monobehaviourList.Add(comp);
+				}
+			}
+
+			///-------------------
+
+
+			foreach( var obj in SceneObjectUtility.SceneReferenceObjects)
+			{
+				var componentType = obj.referenceComponent.GetType().Name;
+				
+				if( obj.referenceComponent.gameObject.CompareTag("EditorOnly") )
+					continue;
+
+				if(! itemDirectry.ContainsKey(componentType) )
+				{
+					itemDirectry.Add( componentType, new List<ReferenceObject>());
+				}
+				var list = itemDirectry[componentType];
+				list.Add(obj);
+			}
+
+			foreach( var dic in itemDirectry.Keys )
+			{
+				if( dic == null )
+					continue;
+				
+				var list = itemDirectry[dic];
+				list.RemoveAll( item => SceneObjectUtility.GetGameObject( item.value ) == item.referenceComponent.gameObject );
+				if( list.Count == 0 )
+					continue;
+
+				foreach( var obj in list)
+				{
+					var baseObject = obj.referenceComponent.GetType();
+					var toObject = obj.value.GetType();
+					
+					if( toObject == null )
+						continue;
+
+					if(ignoreType.Contains( toObject.Name ) )
+						continue;
+
+
+					string text = string.Format("\"{0}\" -> \"{1}\";", baseObject.Name, toObject.Name);
+					
+					if( uniqueStrings.Contains(text) )
+						continue;
+					
+					exportText.AppendLine(text);
+					uniqueStrings.Add(text);
+				}
+			}
+
+			///-------------------
+
+
+			List<ToReferenceWindow.PerhapsReferenceObject> perhapsList = new List<ToReferenceWindow.PerhapsReferenceObject>();
+			foreach( var monobehaviour in monobehaviourList )
+			{
+				ToReferenceWindow.UpdatePerahpsReferenceObjectList(monobehaviour, perhapsList );
+			}
+
+
+			foreach( var obj in perhapsList )
+			{
+				if( ignoreType.Contains( obj.referenceMonobehaviourName ) )
+					continue;
+
+
+				string text = string.Format("\"{0}\" -> \"{1}\";", obj.compType.Name, obj.referenceMonobehaviourName);
+
+				if( uniqueStrings.Contains(text) )
+					continue;
+
+				exportText.AppendLine(text);
+				uniqueStrings.Add(text);
+			}
+
+
+			///-------------------
+
+
+			List<CallbackCallObject> callbackObjectList = new List<CallbackCallObject>();
+			foreach( var monobehaviour in monobehaviourList )
+			{
+				foreach (var text in MonoScript.FromMonoBehaviour(monobehaviour).text.Split(';')) {
+					if (SceneObjectUtility.AddMatchMethod (text, monobehaviour, "SendMessage\\((?<call>.*?),.*\\)", callbackObjectList))
+						continue;
+					if (SceneObjectUtility.AddMatchMethod (text, monobehaviour, "SendMessage\\((?<call>.*?)\\)", callbackObjectList))
+						continue;
+					if (SceneObjectUtility.AddMatchMethod (text, monobehaviour, "BroadcastMessage\\((?<call>.*?)\\)", callbackObjectList))
+						continue;
+					if (SceneObjectUtility.AddMatchMethod (text, monobehaviour, "BroadcastMessage\\((?<call>.*?)\\)", callbackObjectList))
+						continue;
+				}
+			}
+
+
+
+			foreach( var callback in callbackObjectList )
+			{
+				foreach (var item in monobehaviourList) {
+					var method = item.GetType ().GetMethod (callback.method, 
+					                                        System.Reflection.BindingFlags.NonPublic | 
+					                                        System.Reflection.BindingFlags.Public |
+					                                        System.Reflection.BindingFlags.Instance);
+					if (method != null) {
+						foreach( var comp in callback.callComponent )
+						{
+							if(ignoreType.Contains( item.GetType().Name ) )
+								continue;
+
+							string text = string.Format("\"{0}\" -> \"{1}\" [style = dotted];", comp.GetType().Name, item.GetType().Name);
+							if( uniqueStrings.Contains(text) )
+								continue;
+							exportText.AppendLine(text);
+							uniqueStrings.Add(text);
+						}
+
+					}
+				}
+			}
+
+			List<ANimationCallbackObject> animCallbackObjectList = new List<ANimationCallbackObject>();
+
+			foreach( var obj in SceneObjectUtility.GetAllObjectsInScene(false) )
+			{
+				if( obj.GetComponent<Animator>() != null )
+					SceneObjectUtility.GetAnimationEvents( obj.GetComponent<Animator>(), animCallbackObjectList );
+			}
+			
+			foreach( var callback in animCallbackObjectList )
+			{
+				foreach (var item in monobehaviourList) {
+					var method = item.GetType ().GetMethod (callback.method, 
+					                                        System.Reflection.BindingFlags.NonPublic | 
+					                                        System.Reflection.BindingFlags.Public |
+					                                        System.Reflection.BindingFlags.Instance);
+					if (method != null) {
+						foreach( var comp in callback.callComponent )
+						{
+							if(ignoreType.Contains( item.GetType().Name ) )
+								continue;
+							
+							string text = string.Format("\"AnimClip({0})\" -> \"{1}\" [style = dotted];", callback.clip.name, item.GetType().Name);
+							if( uniqueStrings.Contains(text) )
+								continue;
+							exportText.AppendLine(text);
+							uniqueStrings.Add(text);
+						}
+						
+					}
+				}
+			}
+
+			exportText.AppendLine("}");
+
+			return exportText.ToString();
+
+
+		}
 		
-		public static void ExportText()
+		static string GameObjectBaseGraph()
 		{
 			List<string> uniqueStrings = new List<string>();
 			StringBuilder exportText = new StringBuilder();
@@ -38,19 +247,16 @@ namespace ReferenceExplorer
 				var list = itemDirectry[root.name];
 				list.Add(obj);
 			}
-
+			
 			foreach( var dic in itemDirectry.Keys )
 			{
 				if( dic == null )
 					continue;
-
+				
 				var list = itemDirectry[dic];
 				list.RemoveAll( item => SceneObjectUtility.GetGameObject( item.value ) == item.referenceComponent.gameObject );
 				if( list.Count == 0 )
 					continue;
-
-				if( list.Exists( item => item.referenceComponent.gameObject.name == dic ) )
-					exportText.AppendLine(string.Format("\"{0}\" [shape = box, style = filled, color = \"#336666\", fillcolor = \"#CC9999\"]", dic));
 
 				foreach( var obj in list)
 				{
@@ -73,10 +279,16 @@ namespace ReferenceExplorer
 				}
 			}
 
-			exportText.AppendLine("}");
 
-			File.WriteAllText("export.txt", exportText.ToString());
+
+
+
+
+			exportText.AppendLine("}");
+			
+			return exportText.ToString();
 		}
 	}
+
 }
 

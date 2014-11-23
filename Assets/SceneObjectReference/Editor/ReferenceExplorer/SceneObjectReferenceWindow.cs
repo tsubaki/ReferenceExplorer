@@ -104,7 +104,7 @@ namespace ReferenceExplorer
 				
 				EditorGUILayout.BeginHorizontal();
 				{
-					ignoreSelfReference = GUILayout.Toggle(ignoreSelfReference, "ignore self", EditorStyles.toolbarButton, GUILayout.Width(70));
+					ignoreSelfReference = GUILayout.Toggle(ignoreSelfReference, "Ignore Self", EditorStyles.toolbarButton, GUILayout.Width(70));
 
 					if (isHiding == false && GUILayout.Button ("Appear", EditorStyles.toolbarButton, GUILayout.Width (80))) {
 						DisappearUnreferenceObjects ();
@@ -116,7 +116,7 @@ namespace ReferenceExplorer
 					
 
 
-					if( GUILayout.Button("select child", EditorStyles.toolbarButton, GUILayout.Width(70) ) )
+					if( GUILayout.Button("Selection Children", EditorStyles.toolbarButton, GUILayout.Width(90) ) )
 					{
 						var objs = Selection.activeGameObject.transform.GetComponentsInChildren<Transform>(true);
 						List<GameObject> objList = new List<GameObject>();
