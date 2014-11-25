@@ -155,8 +155,6 @@ namespace ReferenceExplorer
 				}
 			}
 
-
-
 			foreach( var callback in callbackObjectList )
 			{
 				foreach (var item in monobehaviourList) {
@@ -212,6 +210,77 @@ namespace ReferenceExplorer
 					}
 				}
 			}
+
+
+
+			//---------------
+
+
+			List<CallbackObject> co = new List<CallbackObject>();
+
+			if( GameObject.FindObjectOfType<Collider2D>() != null)
+			{
+				co.Add(new CallbackObject(){ method = "OnCollisionEnter2D", callComponenttype = typeof(Collider2D) });
+				co.Add(new CallbackObject(){ method = "OnCollisionExit2D", callComponenttype = typeof(Collider2D) });
+				co.Add(new CallbackObject(){ method = "OnCollisionStay2D", callComponenttype = typeof(Collider2D) });
+				co.Add(new CallbackObject(){ method = "OnTriggerEnter2D", callComponenttype = typeof(Collider2D) });
+				co.Add(new CallbackObject(){ method = "OnTriggerExit2D", callComponenttype = typeof(Collider2D) });
+				co.Add(new CallbackObject(){ method = "OnTriggerStay2D", callComponenttype = typeof(Collider2D) });
+			}
+
+			if( GameObject.FindObjectOfType<Collider>() != null )
+			{
+				co.Add(new CallbackObject(){ method = "OnCollisionEnter", callComponenttype = typeof(Collider) });
+				co.Add(new CallbackObject(){ method = "OnCollisionExit", callComponenttype = typeof(Collider) });
+				co.Add(new CallbackObject(){ method = "OnCollisionStay", callComponenttype = typeof(Collider) });
+				co.Add(new CallbackObject(){ method = "OnTriggerEnter", callComponenttype = typeof(Collider) });
+				co.Add(new CallbackObject(){ method = "OnTriggerExit", callComponenttype = typeof(Collider) });
+				co.Add(new CallbackObject(){ method = "OnTriggerStay", callComponenttype = typeof(Collider) });
+			}
+
+			if( GameObject.FindObjectOfType<Animator>() != null )
+			{
+				co.Add(new CallbackObject(){ method = "OnAnimatorMove", callComponenttype = typeof(Animator) });
+			}
+
+			if( GameObject.FindObjectOfType<Camera>() != null )
+			{
+				var type = typeof(Camera);
+				co.Add(new CallbackObject(){ method = "OnPostRender", callComponenttype = type });
+				co.Add(new CallbackObject(){ method = "OnPreCull", callComponenttype = type });
+				co.Add(new CallbackObject(){ method = "OnPreRender", callComponenttype = type });
+				co.Add(new CallbackObject(){ method = "OnRenderImage", callComponenttype = type });
+				co.Add(new CallbackObject(){ method = "OnRenderObject", callComponenttype = type });
+				co.Add(new CallbackObject(){ method = "OnWillRenderObject ", callComponenttype = type });
+			}
+
+			List<System.Type> uniqueMonobehaviourType = new List<System.Type>();
+			foreach( var monobehaviour in monobehaviourList )
+			{
+				var type =  monobehaviour.GetType();
+				if(! uniqueMonobehaviourType.Contains( type ))
+					uniqueMonobehaviourType.Add(type);
+			}
+
+			foreach( var callback in co ){
+				foreach( var monobehaviourType in uniqueMonobehaviourType )
+				{
+					var method = monobehaviourType.GetMethod (callback.method, 
+					                                                          System.Reflection.BindingFlags.NonPublic | 
+					                                                          System.Reflection.BindingFlags.Public |
+					                                                          System.Reflection.BindingFlags.Instance);
+
+					if(method  != null )
+					{
+						string text = string.Format("\"{0}\" -> \"{1}\" [style = dotted];", callback.callComponenttype.Name, monobehaviourType.Name);
+						if( uniqueStrings.Contains(text) )
+							continue;
+						exportText.AppendLine(text);
+						uniqueStrings.Add(text);
+					}
+				}
+			}
+
 
 			exportText.AppendLine("}");
 

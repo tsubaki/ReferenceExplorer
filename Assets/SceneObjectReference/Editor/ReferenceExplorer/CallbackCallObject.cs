@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System;
 
 namespace ReferenceExplorer
 {
@@ -13,5 +14,11 @@ namespace ReferenceExplorer
 	public class ANimationCallbackObject : CallbackCallObject
 	{
 		public AnimationClip clip;
+	}
+
+	public class CallbackObject
+	{
+		public string method;
+		public Type callComponenttype;
 	}
 }

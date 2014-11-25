@@ -23,7 +23,7 @@ namespace ReferenceExplorer
 			"rigidbody2D", "camera", "light", "animation", "parentInternal",
 			"constantForce", "gameObject", "guiText", "guiTexture", "attachedRigidbody",
 			"hingeJoint", "networkView", "particleSystem", "renderer",
-			"tag", "transform", "hideFlags", "name", "audio", "collider2D", "collider", "material", "mesh",
+			"tag", "transform", "hideFlags", "name", "audio", "material", "mesh",
 			"Material", "material", "Color", "maxVolume", "minVolume", "rolloffFactor", "GetRemainingDistance",
 			"guiElement",
 		};
