@@ -176,7 +176,7 @@ namespace ReferenceExplorer
 			GUILayout.Label(fromRefImage);
 			EditorGUIUtility.SetIconSize(iconSize);
 			
-			EditorGUILayout.LabelField("Reference from any objects");
+			EditorGUILayout.LabelField("Referenced by");
 			
 			EditorGUILayout.EndHorizontal();
 

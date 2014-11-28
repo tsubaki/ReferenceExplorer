@@ -27,11 +27,12 @@ namespace ReferenceExplorer
 		}
 
 
-		[MenuItem("Window/Referenced/Scene Object Reference")]
+		[MenuItem("Window/ReferenceExplorer/Object Reference - Referenced by")]
 		static void Iint()
 		{
 			var tfWindow = EditorWindow.GetWindow<SceneObjectReferenceWindow>();
 			tfWindow.Show();
+			tfWindow.title = "object reference-referenced by";
 		}
 
 		void OnDestroy()
@@ -104,19 +105,19 @@ namespace ReferenceExplorer
 				
 				EditorGUILayout.BeginHorizontal();
 				{
-					ignoreSelfReference = GUILayout.Toggle(ignoreSelfReference, "Ignore Self", EditorStyles.toolbarButton, GUILayout.Width(70));
+					ignoreSelfReference = GUILayout.Toggle(ignoreSelfReference, "without self", EditorStyles.toolbarButton, GUILayout.Width(70));
 
-					if (isHiding == false && GUILayout.Button ("Appear", EditorStyles.toolbarButton, GUILayout.Width (80))) {
+					if (isHiding == false && GUILayout.Button ("ALL", EditorStyles.toolbarButton, GUILayout.Width (80))) {
 						DisappearUnreferenceObjects ();
 					}
 					
-					if (isHiding == true && GUILayout.Button ("Disappear", EditorStyles.toolbarButton, GUILayout.Width (80))) {
+					if (isHiding == true && GUILayout.Button ("Only reference", EditorStyles.toolbarButton, GUILayout.Width (80))) {
 						AppearUnreferenceObjects ();
 					}
 					
 
 
-					if( GUILayout.Button("Selection Children", EditorStyles.toolbarButton, GUILayout.Width(90) ) )
+					if( GUILayout.Button("Select Children", EditorStyles.toolbarButton, GUILayout.Width(90) ) )
 					{
 						var objs = Selection.activeGameObject.transform.GetComponentsInChildren<Transform>(true);
 						List<GameObject> objList = new List<GameObject>();

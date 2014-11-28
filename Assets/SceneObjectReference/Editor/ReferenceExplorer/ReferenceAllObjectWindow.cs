@@ -16,15 +16,15 @@ namespace ReferenceExplorer
 
 		public enum ReferenceType
 		{
-			To_Any_Objects,
-			From_Any_Objects,
-			Components,
+			AllReferencing,
+			AllReferencingBy,
+			AllComponents,
 			TagAndLayers,
 		}
 
-		ReferenceType refType = ReferenceType.Components;
+		ReferenceType refType = ReferenceType.AllComponents;
 		
-		[MenuItem("Window/Referenced/Scene Inspector")]
+		[MenuItem("Window/ReferenceExplorer/Scene Inspector")]
 		static void Init ()
 		{
 			var window = GetWindow (typeof(ReferenceAllObjectWindow));
@@ -104,9 +104,9 @@ namespace ReferenceExplorer
 
 			EditorGUILayout.BeginHorizontal ("box");
 			OnGUIIconLabel (toIcon, new Vector2 (16, 16));
-			EditorGUILayout.LabelField ("reference to any objects");
+			EditorGUILayout.LabelField ("ALL Referencing");
 
-			if (GUILayout.Button ("export dot file", EditorStyles.toolbarButton))
+			if (GUILayout.Button ("Export dot file", EditorStyles.toolbarButton))
 				ExportReferenceText.ExportText (ExportReferenceText.ExportType.ObjectBase);
 			EditorGUILayout.EndHorizontal ();
 
@@ -148,8 +148,8 @@ namespace ReferenceExplorer
 		{
 			EditorGUILayout.BeginHorizontal ("box");
 			OnGUIIconLabel (objectIcon, new Vector2 (16, 16));
-			EditorGUILayout.LabelField ("all component on scene");
-			if (GUILayout.Button ("export dot file", EditorStyles.toolbarButton))
+			EditorGUILayout.LabelField ("All components in the scene");
+			if (GUILayout.Button ("Export dot file", EditorStyles.toolbarButton))
 				ExportReferenceText.ExportText (ExportReferenceText.ExportType.ComponentBase);
 
 			EditorGUILayout.EndHorizontal ();
@@ -189,7 +189,7 @@ namespace ReferenceExplorer
 
 			EditorGUILayout.BeginHorizontal ("box");
 			OnGUIIconLabel (fromIcon, new Vector2 (16, 16));
-			EditorGUILayout.LabelField ("reference from any objects");
+			EditorGUILayout.LabelField ("ALL reference by");
 			EditorGUILayout.EndHorizontal ();
 
 
@@ -249,13 +249,13 @@ namespace ReferenceExplorer
 			
 			try {
 				switch (refType) {
-				case ReferenceType.From_Any_Objects:
+				case ReferenceType.AllReferencingBy:
 					OnGUIAllObjectReferenceFrom ();
 					break;
-				case ReferenceType.To_Any_Objects:
+				case ReferenceType.AllReferencing:
 					OnGUIAllObjectReferenceTo ();
 					break;
-				case ReferenceType.Components:
+				case ReferenceType.AllComponents:
 					OnGUIAllComponent ();
 					break;
 				case ReferenceType.TagAndLayers:

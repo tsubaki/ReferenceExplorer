@@ -23,13 +23,13 @@ namespace ReferenceExplorer
 		bool isSelected = false;
 
 		enum CallType{
-			Component_Have_Callback,
-			Object_Have_Callback,
-			Component_Call_Callback,
-			Search_SourceCode
+			CalledComponents,
+			CalledObjects,
+			CallingComponents,
+			SearchSourcecodes
 		};
 
-		CallType callType = CallType.Component_Call_Callback;
+		CallType callType = CallType.CallingComponents;
 
 		static void HierarchyItemCB (int instanceID, Rect selectionRect)
 		{
@@ -226,7 +226,7 @@ namespace ReferenceExplorer
 			return true;
 		}
 	
-		[MenuItem("Window/Referenced/Callbacks")]
+		[MenuItem("Window/ReferenceExplorer/Callbacks")]
 		static void Init ()
 		{
 			var window = GetWindow (typeof(SceneObjectsCalback)) as SceneObjectsCalback;
@@ -283,7 +283,7 @@ namespace ReferenceExplorer
 
 			EditorGUI.BeginChangeCheck();
 
-			isSelected = GUILayout.Toggle(isSelected, "Search selected objects", EditorStyles.toolbarButton, GUILayout.Width(120) );
+			isSelected = GUILayout.Toggle(isSelected, "Search selected", EditorStyles.toolbarButton, GUILayout.Width(120) );
 
 			callType = (CallType)EditorGUILayout.EnumPopup( callType, EditorStyles.toolbarPopup);
 
@@ -292,7 +292,7 @@ namespace ReferenceExplorer
 				SearchCallback ();
 				UpdateComponentHaveCallbackList ();
 
-				if( callType == CallType.Search_SourceCode )
+				if( callType == CallType.SearchSourcecodes )
 				{
 					search.selected = isSelected;
 					search.UpdateCalledObjectList();
@@ -305,7 +305,7 @@ namespace ReferenceExplorer
 			EditorGUILayout.EndHorizontal();
 
 			EditorGUILayout.BeginVertical();
-			if( callType == CallType.Search_SourceCode )
+			if( callType == CallType.SearchSourcecodes )
 			{
 				search.OnGUI();
 			}else{
@@ -318,7 +318,7 @@ namespace ReferenceExplorer
 		{
 			
 			
-			findMethodName = EditorGUILayout.TextField ("extra callback", findMethodName, GUILayout.Width (Screen.width - 8));
+			//findMethodName = EditorGUILayout.TextField ("extra callback", findMethodName, GUILayout.Width (Screen.width - 8));
 			
 			if (callbackCallObjectList.Count != 0) {
 				
@@ -342,7 +342,7 @@ namespace ReferenceExplorer
 					
 					switch( callType )
 					{
-					case CallType.Component_Call_Callback:
+					case CallType.CallingComponents:
 						if (i == currentItem) {
 							foreach (var obj in methodName.callComponent) {
 								EditorGUILayout.ObjectField (obj.GetType ().ToString (), obj, obj.GetType ());
@@ -351,7 +351,7 @@ namespace ReferenceExplorer
 								EditorGUILayout.LabelField("Call from UnityEngine");
 						}
 						break;
-					case CallType.Component_Have_Callback:
+					case CallType.CalledComponents:
 						
 						if (i == currentItem) {
 							
@@ -374,7 +374,7 @@ namespace ReferenceExplorer
 						}
 						
 						break;
-					case CallType.Object_Have_Callback:
+					case CallType.CalledObjects:
 						if (i == currentItem) {
 							
 							var objList = new List<GameObject>();

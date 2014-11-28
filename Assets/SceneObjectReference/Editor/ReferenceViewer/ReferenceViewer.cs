@@ -20,7 +20,7 @@ namespace ReferenceViewer
 
         static Dictionary<string, bool> foldouts = new Dictionary<string, bool>();
 
-		[MenuItem("Window/Referenced/Asset Reference")]
+		[MenuItem("Window/ReferenceExplorer/Assets Referencing - Referenced by")]
         private static void Open()
         {
             GetWindow<ReferenceViewer>();

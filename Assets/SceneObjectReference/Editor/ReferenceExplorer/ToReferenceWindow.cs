@@ -241,7 +241,7 @@ namespace ReferenceExplorer
 			GUILayout.Label(toRefImage);
 			EditorGUIUtility.SetIconSize(iconSize);
 
-			EditorGUILayout.LabelField("reference to any objects");
+			EditorGUILayout.LabelField("Referencing");
 
 			EditorGUI.BeginChangeCheck();
 			findWillAccessComponent = EditorGUILayout.Toggle( findWillAccessComponent);

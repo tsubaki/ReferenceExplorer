@@ -17,7 +17,7 @@ namespace ReferenceExplorer
 //		}
 		
 		List<CalledObject> calledObjectList = new List<CalledObject> ();
-		bool isRegix = true;
+		bool isRegex = true;
 		public bool selected = false;
 		
 		public void UpdateCalledObjectList ()
@@ -61,7 +61,7 @@ namespace ReferenceExplorer
 			{
 				var code = comp.monoscript.text;
 
-				if( isRegix ){
+				if( isRegex ){
 					var match = Regex.Match(code, text );
 					if( match.Success )
 						findedObjectList.Add(comp);
@@ -107,7 +107,7 @@ namespace ReferenceExplorer
 
 
 				EditorGUI.BeginChangeCheck();
-				isRegix =  GUILayout.Toggle(isRegix, "Regix", EditorStyles.toolbarButton, GUILayout.Width(45));
+				isRegex =  GUILayout.Toggle(isRegex, "Regex", EditorStyles.toolbarButton, GUILayout.Width(45));
 				searchText = EditorGUILayout.TextField(searchText);
 
 				if( EditorGUI.EndChangeCheck() )

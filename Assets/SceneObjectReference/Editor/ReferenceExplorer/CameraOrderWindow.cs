@@ -7,7 +7,7 @@ namespace ReferenceExplorer
 {
 	public class CameraOrderWindow : EditorWindow {
 
-		[MenuItem("Window/Referenced/Camera order")]
+		//[MenuItem("Window/Referenced/Camera Order")]
 		static void Init()
 		{
 			var window = CameraOrderWindow.GetWindow<CameraOrderWindow>("camera order");
