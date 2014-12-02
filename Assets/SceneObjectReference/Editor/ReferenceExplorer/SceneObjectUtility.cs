@@ -4,6 +4,8 @@ using UnityEditor;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace ReferenceExplorer
 {
@@ -19,13 +21,8 @@ namespace ReferenceExplorer
 		};
 		static readonly string[] ignoreMember =
 		{
-			"root", "parent", "particleEmitter", "rigidbody", "canvas",
-			"rigidbody2D", "camera", "light", "animation", "parentInternal",
-			"constantForce", "gameObject", "guiText", "guiTexture", "attachedRigidbody",
-			"hingeJoint", "networkView", "particleSystem", "renderer",
-			"tag", "transform", "hideFlags", "name", "audio", "material", "mesh",
-			"Material", "material", "Color", "maxVolume", "minVolume", "rolloffFactor", "GetRemainingDistance",
-			"guiElement",
+
+
 		};
 
 		static readonly System.Type[] ignoreClassTypes =
@@ -176,6 +173,23 @@ namespace ReferenceExplorer
 
 
 
+				if( obj is UnityEngine.Events.UnityEventBase )
+				{
+					var ev = (UnityEngine.Events.UnityEvent) obj;
+
+					for(int i=0; i<ev.GetPersistentEventCount(); i++)
+					{
+						var target = ev.GetPersistentTarget(i);
+						var item = new ReferenceObject (){
+							referenceComponent = component,
+							value = target,
+							referenceMemberName = "UI Event",
+						};
+						AddObject (item, objectList, false);
+					}
+				}
+
+
 				foreach (var field in type.GetFields(
 					BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance |
 					BindingFlags.Static | BindingFlags.DeclaredOnly)) {
@@ -265,30 +279,37 @@ namespace ReferenceExplorer
 				
 				}
 			
+//
+//				 property Instability
 
-				// property Instability
-
-				foreach (var property in type.GetProperties(
-					BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance )) {
-					if (IsIgnoreMember (property.PropertyType, property.Name))
-						continue;
-
-					if (IsIgnoreType (property.PropertyType))
-						continue;
-
-					var value = property.GetValue (obj, null);
-					if (value == null)
-						continue;
-
-					var item = new ReferenceObject (){
-						referenceComponent = component,
-						value = value,
-						referenceMemberName = property.Name,
-					};
-						
-					AddObject (item, objectList, false);
-					continue;
-				}
+//				foreach (var property in type.GetProperties(
+//					BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance )) {
+//					if (IsIgnoreMember (property.PropertyType, property.Name))
+//						continue;
+//
+//					if (IsIgnoreType (property.PropertyType))
+//						continue;
+//
+//					var value = property.GetValue (obj, null);
+//					if (value == null)
+//						continue;
+//
+//					if( System.Array.Exists<System.Type>( primitive, p => p == value.GetType() ) )
+//						continue;
+//					if (property.PropertyType.GetCustomAttributes (typeof(System.SerializableAttribute), false).Length != 0) {
+//						CollectObjectParameter (value, component, objectList, hierarchy);
+//					} else {
+//						var item = new ReferenceObject (){
+//							referenceComponent = component,
+//							value = value,
+//							referenceMemberName = property.Name,
+//						};
+//						
+//						AddObject (item, objectList, false);
+//					}
+//					continue;
+//				}
+//
 
 			}catch (System.ArgumentException){
 			} catch (System.Exception e) {
