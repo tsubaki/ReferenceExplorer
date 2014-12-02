@@ -4,6 +4,9 @@ using UnityEditor;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
+#pragma warning disable 0618
+
+
 namespace ReferenceExplorer
 {
 	public class SearchSceneComponentCode : EditorWindow
@@ -168,7 +171,7 @@ namespace ReferenceExplorer
 		{
 			public MonoScript monoscript;
 			public MonoBehaviour component;
-			public string code;
+			public string code = string.Empty;
 		}
 
 		class MonoscriptType

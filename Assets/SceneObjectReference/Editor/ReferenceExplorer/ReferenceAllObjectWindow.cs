@@ -4,6 +4,8 @@ using UnityEditor;
 using System.Collections.Generic;
 using System.Linq;
 
+#pragma warning disable 0618 
+
 namespace ReferenceExplorer
 {
 	public class ReferenceAllObjectWindow : EditorWindow

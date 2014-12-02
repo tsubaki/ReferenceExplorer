@@ -2,6 +2,7 @@
 using System.Collections;
 using UnityEditor;
 using System.Collections.Generic;
+#pragma warning disable 0618
 
 namespace ReferenceExplorer
 {

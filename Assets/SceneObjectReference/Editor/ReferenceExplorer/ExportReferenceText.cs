@@ -1,12 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Text;
-using UnityEngine;
-using System.Collections;
-using System.Text;
 using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
+
 
 namespace ReferenceExplorer
 {
@@ -195,18 +193,14 @@ namespace ReferenceExplorer
 					                                        System.Reflection.BindingFlags.Public |
 					                                        System.Reflection.BindingFlags.Instance);
 					if (method != null) {
-						foreach( var comp in callback.callComponent )
-						{
-							if(ignoreType.Contains( item.GetType().Name ) )
-								continue;
-							
-							string text = string.Format("\"AnimClip({0})\" -> \"{1}\" [style = dotted];", callback.clip.name, item.GetType().Name);
-							if( uniqueStrings.Contains(text) )
-								continue;
-							exportText.AppendLine(text);
-							uniqueStrings.Add(text);
-						}
+						if(ignoreType.Contains( item.GetType().Name ) )
+							continue;
 						
+						string text = string.Format("\"AnimClip({0})\" -> \"{1}\" [style = dotted];", callback.clip.name, item.GetType().Name);
+						if( uniqueStrings.Contains(text) )
+							continue;
+						exportText.AppendLine(text);
+						uniqueStrings.Add(text);
 					}
 				}
 			}
