@@ -108,11 +108,7 @@ namespace ReferenceExplorer
 			EditorGUI.BeginChangeCheck();
 			EditorGUILayout.LabelField("Search", GUILayout.Width(60));
 			saerchText = EditorGUILayout.TextField(saerchText);
-			if( EditorGUI.EndChangeCheck())
-			{
-				SortLayers();
-			}
-			
+
 			EditorGUILayout.EndHorizontal();
 			
 			current = EditorGUILayout.BeginScrollView(current);
@@ -128,6 +124,8 @@ namespace ReferenceExplorer
 					EditorGUI.indentLevel = 1;
 					foreach( var obj in layer.rendererList )
 					{
+						if( obj == null )
+							continue;
 						EditorGUILayout.BeginHorizontal();
 						obj.sortingOrder = EditorGUILayout.IntField(obj.sortingOrder, GUILayout.Width(40));
 						EditorGUILayout.ObjectField(obj, typeof(SpriteRenderer), true);
@@ -136,6 +134,13 @@ namespace ReferenceExplorer
 				}
 				EditorGUI.indentLevel = 0;
 			}
+
+			if( EditorGUI.EndChangeCheck())
+			{
+				SortLayers();
+				Repaint();
+			}
+
 			EditorGUILayout.EndScrollView();
 		}
 
