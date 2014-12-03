@@ -32,7 +32,7 @@ namespace ReferenceViewer
             return Selection.objects.Length != 0;
         }
 
-        [MenuItem("Assets/Find References In Project")]
+		[MenuItem("Assets/Find References In Project", false, 40)]
         private static void Find()
         {
             sceneReference.Clear();
