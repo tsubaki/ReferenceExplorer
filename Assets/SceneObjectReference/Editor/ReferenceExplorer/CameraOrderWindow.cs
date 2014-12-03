@@ -84,8 +84,6 @@ namespace ReferenceExplorer
 				var sortingLayerName =  string.IsNullOrEmpty( renderer.sortingLayerName ) ? "Default" : renderer.sortingLayerName ;
 				var tag = layers.Find( t => t.tagName == sortingLayerName);
 
-				Debug.Log(renderer.gameObject.name + "/" + renderer.sortingLayerName );
-
 				tag.rendererList.Add( renderer);
 			}
 
