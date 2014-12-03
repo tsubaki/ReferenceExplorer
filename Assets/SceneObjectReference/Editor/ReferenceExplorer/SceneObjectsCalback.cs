@@ -4,7 +4,10 @@ using UnityEditor;
 using UnityEditorInternal;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+
+#if UNITY_4_6
 using UnityEngine.UI;
+#endif
 
 #pragma warning disable 0618
 
@@ -223,6 +226,8 @@ namespace ReferenceExplorer
 			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnDrawGizmos" });
 			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnDrawGizmosSelected" });
 
+#if UNITY_4_6
+
 			// UGUI
 			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnDeselect" });
 			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnMove" });
@@ -238,6 +243,7 @@ namespace ReferenceExplorer
 			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnPointerClick" });
 			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnPointerClick" });
 
+#endif
 		}
 
 		bool AddMatchMethod (string source, Component calledComponent, string patterm)

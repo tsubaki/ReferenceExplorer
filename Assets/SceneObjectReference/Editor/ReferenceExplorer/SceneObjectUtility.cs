@@ -4,8 +4,11 @@ using UnityEditor;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text.RegularExpressions;
+
+#if UNITY_4_6
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+#endif
 
 namespace ReferenceExplorer
 {
@@ -169,6 +172,7 @@ namespace ReferenceExplorer
 					return;
 
 
+#if UNITY_4_6
 
 				if( obj is UnityEngine.Events.UnityEventBase )
 				{
@@ -186,6 +190,7 @@ namespace ReferenceExplorer
 					}
 				}
 
+#endif
 
 				foreach (var field in type.GetFields(
 					BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance |

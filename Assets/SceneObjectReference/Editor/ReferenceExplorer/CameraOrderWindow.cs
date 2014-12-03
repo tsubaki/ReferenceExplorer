@@ -12,7 +12,9 @@ namespace ReferenceExplorer
 		public enum OrderType
 		{
 			CameraOrder,
+#if UNITY_4_6
 			SpriteOrder
+#endif
 		}
 
 		public OrderType orderType;
@@ -27,7 +29,6 @@ namespace ReferenceExplorer
 		void OnFocus()
 		{
 			UpdateCameras();
-			SortLayers();
 		}
 
 		void OnHierarchyChange()
@@ -62,6 +63,7 @@ namespace ReferenceExplorer
 			allCameras.Sort( (x, y) => {	return (int)(1000 * x.depth) - (int)(1000 * y.depth); });
 		}
 
+#if UNITY_4_6
 
 		void SortLayers()
 		{
@@ -92,6 +94,7 @@ namespace ReferenceExplorer
 				layer.rendererList.Sort( (x,y) =>  x.sortingOrder - y.sortingOrder);
 			}
 		}
+#endif
 
 		List<SortingLayerWithObject> layers = new List<SortingLayerWithObject>();
 		List<Camera> allCameras = new List<Camera>();
@@ -99,6 +102,8 @@ namespace ReferenceExplorer
 		string saerchText = string.Empty;
 		Vector2 current;
 
+
+#if UNITY_4_6
 		void OnGUISpriteOrder()
 		{
 			EditorGUILayout.BeginHorizontal("box");
@@ -135,12 +140,14 @@ namespace ReferenceExplorer
 
 			if( EditorGUI.EndChangeCheck())
 			{
+
 				SortLayers();
 				Repaint();
 			}
 
 			EditorGUILayout.EndScrollView();
 		}
+#endif
 
 		void OnGUICameraOrder()
 		{
@@ -162,8 +169,9 @@ namespace ReferenceExplorer
 
 		void OnGUI()
 		{
-		 	orderType = (OrderType) EditorGUILayout.EnumPopup(orderType, EditorStyles.toolbarPopup);
+			orderType = (OrderType) EditorGUILayout.EnumPopup(orderType, EditorStyles.toolbarPopup);
 
+#if UNITY_4_6
 			switch( orderType )
 			{
 			case OrderType.SpriteOrder:
@@ -173,6 +181,10 @@ namespace ReferenceExplorer
 				OnGUICameraOrder();
 				break;
 			}
+#else
+			OnGUICameraOrder();
+#endif
+
 		}
 
 
