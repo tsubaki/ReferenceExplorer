@@ -19,11 +19,8 @@ namespace ReferenceExplorer
 			typeof(ParticleSystemRenderer), typeof(Animator), typeof(SkinnedMeshRenderer), typeof(NavMesh),
 			typeof(Shader), typeof(AnimationCurve), typeof(Color), typeof(System.Collections.Hashtable)
 		};
-		static readonly string[] ignoreMember =
-		{
 
-
-		};
+		static readonly string[] ignoreMember ={};
 
 		static readonly System.Type[] ignoreClassTypes =
 		{
@@ -281,7 +278,7 @@ namespace ReferenceExplorer
 			
 //
 //				 property Instability
-
+//
 //				foreach (var property in type.GetProperties(
 //					BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance )) {
 //					if (IsIgnoreMember (property.PropertyType, property.Name))
