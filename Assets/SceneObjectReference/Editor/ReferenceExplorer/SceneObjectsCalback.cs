@@ -4,6 +4,7 @@ using UnityEditor;
 using UnityEditorInternal;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using UnityEngine.UI;
 
 #pragma warning disable 0618
 
@@ -141,7 +142,17 @@ namespace ReferenceExplorer
 			}else{
 				monobehaviourList.AddRange(GameObject.FindObjectsOfType<MonoBehaviour>());
 			}
-			
+
+			foreach( var item in monobehaviourList.ToArray())
+			{
+				if( item.GetType().Namespace == null )
+					continue;
+
+				if(	item.GetType().Namespace.Equals("UnityEngine.UI") || 
+				  	item.GetType().Namespace.Equals("UnityEngine.EventSystems")){
+					monobehaviourList.Remove(item);
+				}
+			}
 
 			foreach (var item in monobehaviourList) {
 				var method = item.GetType ().GetMethod (methodName, 
@@ -181,12 +192,14 @@ namespace ReferenceExplorer
 				callbackCallObjectList.Add (new CallbackCallObject (){ method = findMethodName});
 			}
 
+			// common callback
 			callbackCallObjectList.Add (new CallbackCallObject (){ method = "Awake" });
 			callbackCallObjectList.Add (new CallbackCallObject (){ method = "Start" });
 			callbackCallObjectList.Add (new CallbackCallObject (){ method = "Update" });
 			callbackCallObjectList.Add (new CallbackCallObject (){ method = "FixedUpdate" });
 			callbackCallObjectList.Add (new CallbackCallObject (){ method = "LateUpdate" });
-			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnApplicationPause" });
+
+			// collider callback
 			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnTriggerStay" });
 			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnTriggerEnter" });
 			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnTriggerExit" });
@@ -199,11 +212,31 @@ namespace ReferenceExplorer
 			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnTriggerEnter2D" });
 			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnTriggerStay2D" });
 			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnTriggerExit2D" });
+
+			//  application callback
+			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnApplicationPause" });
 			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnApplicationQuit" });
 			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnControllerColliderHit" });
+
+			// gui callback
 			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnGUI" });
 			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnDrawGizmos" });
 			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnDrawGizmosSelected" });
+
+			// UGUI
+			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnDeselect" });
+			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnMove" });
+			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnPointerClick" });
+			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnPointerDown" });
+			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnPointerEnter" });
+			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnPointerExit" });
+			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnPointerUp" });
+			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnSelect" });
+			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnSubmit" });
+			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnInitializePotentialDrag" });
+			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnBeginDrag" });
+			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnPointerClick" });
+			callbackCallObjectList.Add (new CallbackCallObject (){ method = "OnPointerClick" });
 
 		}
 
