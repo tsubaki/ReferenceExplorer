@@ -11,9 +11,9 @@ namespace ReferenceExplorer
 
 		public enum OrderType
 		{
-			CameraOrder,
+			CameraOrderInScene,
 #if UNITY_4_6
-			SpriteOrder
+			SpriteOrderInScene
 #endif
 		}
 
@@ -29,6 +29,8 @@ namespace ReferenceExplorer
 		void OnFocus()
 		{
 			UpdateCameras();
+
+			backgroundTexture = new Texture2D(1,1);
 		}
 
 		void OnHierarchyChange()
@@ -40,6 +42,7 @@ namespace ReferenceExplorer
 		void OnInspectorUpdate ()
 		{
 			SortCamera();
+			SortLayers();
 			Repaint();
 		}
 
@@ -55,7 +58,7 @@ namespace ReferenceExplorer
 			}
 
 			SortCamera();
-
+			SortLayers();
 		}
 
 		void SortCamera()
@@ -80,8 +83,6 @@ namespace ReferenceExplorer
 			SceneObjectUtility.CollectionAllComponent();
 			foreach( var renderer in FindObjectsOfType<SpriteRenderer>())
 			{
-				if( renderer.gameObject.name.IndexOf(saerchText) == -1 )
-					continue;
 
 				var sortingLayerName =  string.IsNullOrEmpty( renderer.sortingLayerName ) ? "Default" : renderer.sortingLayerName ;
 				var tag = layers.Find( t => t.tagName == sortingLayerName);
@@ -99,25 +100,22 @@ namespace ReferenceExplorer
 		List<SortingLayerWithObject> layers = new List<SortingLayerWithObject>();
 		List<Camera> allCameras = new List<Camera>();
 
-		string saerchText = string.Empty;
 		Vector2 current;
+
+		Texture2D backgroundTexture;
 
 
 #if UNITY_4_6
 		void OnGUISpriteOrder()
 		{
-			EditorGUILayout.BeginHorizontal("box");
-			
 			EditorGUI.BeginChangeCheck();
-			EditorGUILayout.LabelField("Search", GUILayout.Width(60));
-			saerchText = EditorGUILayout.TextField(saerchText);
 
-			EditorGUILayout.EndHorizontal();
-			
 			current = EditorGUILayout.BeginScrollView(current);
-			
-			
-			
+			var selectedList = new List<GameObject>( Selection.gameObjects );
+
+			GUIStyle style = new GUIStyle();
+			style.normal.background = backgroundTexture;
+
 			foreach( var layer in layers )
 			{
 				EditorGUI.indentLevel = 0;
@@ -129,7 +127,12 @@ namespace ReferenceExplorer
 					{
 						if( obj == null )
 							continue;
-						EditorGUILayout.BeginHorizontal();
+
+						if( selectedList.Contains( obj.gameObject ))
+							EditorGUILayout.BeginHorizontal(style);
+						else
+							EditorGUILayout.BeginHorizontal();
+
 						obj.sortingOrder = EditorGUILayout.IntField(obj.sortingOrder, GUILayout.Width(40));
 						EditorGUILayout.ObjectField(obj, typeof(SpriteRenderer), true);
 						EditorGUILayout.EndHorizontal();
@@ -158,6 +161,8 @@ namespace ReferenceExplorer
 			{
 				EditorGUILayout.BeginHorizontal();
 				camera.depth = EditorGUILayout.FloatField(camera.depth, GUILayout.Width(40));
+
+
 				EditorGUILayout.ObjectField(camera.gameObject, typeof(GameObject) );
 				EditorGUILayout.EndHorizontal();
 			}
@@ -174,10 +179,10 @@ namespace ReferenceExplorer
 #if UNITY_4_6
 			switch( orderType )
 			{
-			case OrderType.SpriteOrder:
+			case OrderType.SpriteOrderInScene:
 				OnGUISpriteOrder();
 				break;
-			case OrderType.CameraOrder:
+			case OrderType.CameraOrderInScene:
 				OnGUICameraOrder();
 				break;
 			}
