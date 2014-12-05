@@ -12,7 +12,7 @@ namespace ReferenceExplorer
 		public enum OrderType
 		{
 			CameraOrderInScene,
-#if UNITY_4_6
+#if UNITY_4_6 || UNITY_5
 			SpriteOrderInScene
 #endif
 		}
@@ -66,10 +66,10 @@ namespace ReferenceExplorer
 			allCameras.Sort( (x, y) => {	return (int)(1000 * x.depth) - (int)(1000 * y.depth); });
 		}
 
-#if UNITY_4_6
 
 		void SortLayers()
 		{
+#if UNITY_4_6 || UNITY_5
 			layers.Clear();
 			SerializedObject tagManager = new SerializedObject(AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/TagManager.asset")[0]);
 
@@ -94,18 +94,18 @@ namespace ReferenceExplorer
 			{
 				layer.rendererList.Sort( (x,y) =>  x.sortingOrder - y.sortingOrder);
 			}
-		}
 #endif
+		}
 
 		List<SortingLayerWithObject> layers = new List<SortingLayerWithObject>();
 		List<Camera> allCameras = new List<Camera>();
 
 		Vector2 current;
 
-		Texture2D backgroundTexture;
+		Texture2D backgroundTexture = null;
 
 
-#if UNITY_4_6
+#if UNITY_4_6 || UNITY_5
 		void OnGUISpriteOrder()
 		{
 			EditorGUI.BeginChangeCheck();
@@ -176,7 +176,7 @@ namespace ReferenceExplorer
 		{
 			orderType = (OrderType) EditorGUILayout.EnumPopup(orderType, EditorStyles.toolbarPopup);
 
-#if UNITY_4_6
+#if UNITY_4_6 || UNITY_5
 			switch( orderType )
 			{
 			case OrderType.SpriteOrderInScene:
