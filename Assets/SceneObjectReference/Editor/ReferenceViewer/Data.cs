@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿#if !UNITY_5
+using System.Collections.Generic;
 
 namespace ReferenceViewer
 {
@@ -25,3 +26,4 @@ namespace ReferenceViewer
         public List<SceneData> sceneData = new List<SceneData>();
     }
 }
+#endif

@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !UNITY_5
+using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
@@ -292,3 +293,4 @@ namespace ReferenceViewer
         }
     }
 }
+#endif

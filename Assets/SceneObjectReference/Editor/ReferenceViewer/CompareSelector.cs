@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !UNITY_5
+using System;
 using System.Collections.Generic;
 
 namespace ReferenceViewer
@@ -23,3 +24,4 @@ namespace ReferenceViewer
 		}
 	}
 }
+#endif

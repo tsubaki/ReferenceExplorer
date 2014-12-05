@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !UNITY_5
+using System;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEditor;
@@ -58,3 +59,4 @@ namespace ReferenceViewer
         }
     }
 }
+#endif
