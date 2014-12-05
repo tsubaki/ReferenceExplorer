@@ -434,16 +434,16 @@ namespace ReferenceExplorer
 			{
 				foreach( var ev in AnimationUtility.GetAnimationEvents(clip) )
 				{
-					MethodWithObject item = methdoList.Find( (name) =>{ return name.method.Equals(ev.functionName) ; } );
+					ANimationCallbackObject item = callbackCallObjectList.Find( (name) =>{ return name.method.Equals(ev.functionName) ; } );
 					if( item == null ){
-						item = new MethodWithObject();
+						item = new ANimationCallbackObject();
 						item.method = ev.functionName;
-						methdoList.Add(item);
+						callbackCallObjectList.Add(item);
 					}
 					
-					if( !item.objectList.Exists( (obj)=>{ return animator.Equals(obj); } ) )
+					if( !item.callComponent.Exists( (obj)=>{ return animator.Equals(obj); } ) )
 					{
-						item.objectList.Add(animator );
+						item.callComponent.Add(animator );
 					}
 				}
 			}

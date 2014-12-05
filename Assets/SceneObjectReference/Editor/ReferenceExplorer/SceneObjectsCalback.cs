@@ -65,25 +65,25 @@ namespace ReferenceExplorer
 				return;
 
 #if UNITY_5_0
-		var anim = (UnityEditor.Animations.AnimatorController)animator.runtimeAnimatorController;
+			var anim = (UnityEditor.Animations.AnimatorController)animator.runtimeAnimatorController;
 
-		foreach( var clip in anim.animationClips )
-		{
-			foreach( var ev in AnimationUtility.GetAnimationEvents(clip) )
+			foreach( var clip in anim.animationClips )
 			{
-				MethodWithObject item = methdoList.Find( (name) =>{ return name.method.Equals(ev.functionName) ; } );
-				if( item == null ){
-					item = new MethodWithObject();
-					item.method = ev.functionName;
-					methdoList.Add(item);
-				}
-
-				if( !item.objectList.Exists( (obj)=>{ return animator.Equals(obj); } ) )
+				foreach( var ev in AnimationUtility.GetAnimationEvents(clip) )
 				{
-					item.objectList.Add(animator );
+					var item = callbackCallObjectList.Find( (name) =>{ return name.method.Equals(ev.functionName) ; } );
+					if( item == null ){
+						item = new CallbackCallObject();
+						item.method = ev.functionName;
+						callbackCallObjectList.Add(item);
+					}
+
+					if( !item.callComponent.Exists( (obj)=>{ return animator.Equals(obj); } ) )
+					{
+						item.callComponent.Add(animator );
+					}
 				}
 			}
-		}
 #else
 			var anim = (UnityEditorInternal.AnimatorController)animator.runtimeAnimatorController;
 
