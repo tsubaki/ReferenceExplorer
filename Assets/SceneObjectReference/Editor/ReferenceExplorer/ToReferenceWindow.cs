@@ -112,6 +112,8 @@ namespace ReferenceExplorer
 
 		public static void UpdatePerahpsReferenceObjectList (MonoBehaviour component, List<PerhapsReferenceObject> list)
 		{
+			if( component == null )
+				return;
 			// analytics  source code.
 			var monoScript = MonoScript.FromMonoBehaviour(component);
 			var uniqueClassList = SceneObjectUtility.SceneUniqueComponentName();

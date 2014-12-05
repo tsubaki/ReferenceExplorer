@@ -141,6 +141,9 @@ namespace ReferenceExplorer
 			List<CallbackCallObject> callbackObjectList = new List<CallbackCallObject>();
 			foreach( var monobehaviour in monobehaviourList )
 			{
+				if( monobehaviour == null )
+					continue;
+
 				foreach (var text in MonoScript.FromMonoBehaviour(monobehaviour).text.Split(';')) {
 					if (SceneObjectUtility.AddMatchMethod (text, monobehaviour, "SendMessage\\((?<call>.*?),.*\\)", callbackObjectList))
 						continue;
@@ -156,6 +159,8 @@ namespace ReferenceExplorer
 			foreach( var callback in callbackObjectList )
 			{
 				foreach (var item in monobehaviourList) {
+					if( item == null )
+						continue;
 					var method = item.GetType ().GetMethod (callback.method, 
 					                                        System.Reflection.BindingFlags.NonPublic | 
 					                                        System.Reflection.BindingFlags.Public |
@@ -251,6 +256,8 @@ namespace ReferenceExplorer
 			List<System.Type> uniqueMonobehaviourType = new List<System.Type>();
 			foreach( var monobehaviour in monobehaviourList )
 			{
+				if( monobehaviour == null )
+					continue;
 				var type =  monobehaviour.GetType();
 				if(! uniqueMonobehaviourType.Contains( type ))
 					uniqueMonobehaviourType.Add(type);

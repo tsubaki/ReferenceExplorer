@@ -55,6 +55,8 @@ namespace ReferenceExplorer
 			List<System.Type> uniqueTypeList = new List<System.Type>();
 			foreach( var component in allComponents )
 			{
+				if( component == null )
+					continue;
 				if( !uniqueTypeList.Contains( component.GetType() ) )
 					uniqueTypeList.Add(component.GetType()) ;
 			}
