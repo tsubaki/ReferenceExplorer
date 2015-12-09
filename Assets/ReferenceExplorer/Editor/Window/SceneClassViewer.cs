@@ -17,7 +17,7 @@ public class SceneClassViewer : EditorWindow
 		CodeSearch,
 	}
 
-	[MenuItem("Test/Types")]
+	[MenuItem("Window/ReferenceExploer/Types")]
 	static void Initialize ()
 	{
 		var window = SceneClassViewer.GetWindow<SceneClassViewer> ();
