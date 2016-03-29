@@ -139,6 +139,8 @@ public class ExplortReferenceMap
 
 			EditorUtility.DisplayProgressBar ("Export Comonent Graph", "exporting", 1);
 			System.IO.File.WriteAllText( System.DateTime.Now.ToFileTime() + ".gml", exportBuilder.ToString());
+		}catch (Exception c){
+			Debug.LogError(c.Message);
 		}finally{
 
 			EditorUtility.ClearProgressBar();
@@ -181,43 +183,69 @@ public class ExplortReferenceMap
 
 
 		int currentTypeCount=0;
-		int max = allTypes.Count;
-		foreach( var type in allTypes ){
-			
-			if( ignoreTypes.Contains( type )){
-				currentTypeCount ++;
-				continue;
-			}
-			
-			if( isOnlyComponent == true && type.IsSubclassOf(typeof( Component )) == false){
-				continue;
-			}
-			
-			EditorUtility.DisplayProgressBar ("Export Comonent Graph", "Lists reference class" + type.FullName, (float)(++currentTypeCount) / max);
-			
-			string pattern = string.Format("[\\.\\s\\<)]+{0}[\\.\\s\\)>]",type.Name);
-			
-			foreach( var monoscript in allUniqueMonoscript ){
-				if( monoscript.GetClass() == type ||
-				   ignoreTypes.Contains(monoscript.GetClass()))
-					continue;
+		int max = allUniqueMonoscript.Count();
+
+		foreach( var monoscript in allUniqueMonoscript ){
+
+			var ignoreNamespace = new Dictionary<string, bool>();
+
+			currentTypeCount ++;
+			EditorUtility.DisplayProgressBar ("Export Comonent Graph", "Lists reference class" + monoscript.name, (float)(currentTypeCount) / max);
+
+			foreach( var type in allTypes ){
 				
+				if( ignoreTypes.Contains( type )){
+					continue;
+				}
+
+				if( isOnlyComponent == true && type.IsSubclassOf(typeof( Component )) == false){
+					continue;
+				}
+
+				// ネームスペースでスキップ
+				if( type.Namespace != null )
+				{
+					if( ignoreNamespace.ContainsKey(type.Namespace)){
+						if( ignoreNamespace[type.Namespace] == false){
+							continue;
+						}
+					}else{
+						string namespacepattern = string.Format("{0}+[\\.;\\S]", type.Namespace);
+						if( Regex.IsMatch(monoscript.text, namespacepattern) == false){
+							ignoreNamespace.Add(type.Namespace, false);
+							continue;
+						}else{
+							ignoreNamespace.Add(type.Namespace, true);
+						}
+					}
+				}
+
+
+
+
+				string pattern = string.Format("[\\.\\s\\<)]+{0}[\\.\\s\\)>]",type.Name);
+
+				if( monoscript.GetClass() == type ||
+					ignoreTypes.Contains(monoscript.GetClass()))
+					continue;
+
 				var text= Regex.Replace(monoscript.text, "//.*\\n", "");
 				text = text.Replace("\\n", " ");
 				text = Regex.Replace(text, "/\\*.*\\*/", " ");
-				
+
 				var match = Regex.Match(text, pattern);
-				
+
 				if( match.Success == false )
 					continue;
-				
+
 				refList.Add(new ReferenceInfomation(){
 					from = monoscript.GetClass(),
 					to = type
 				});
-				
+
 				refTypes.Add(monoscript.GetClass());
 				refTypes.Add(type);
+
 			}
 		}
 
