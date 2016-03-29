@@ -136,6 +136,9 @@ public class SceneClassViewer : EditorWindow
 								currentType = type;
 						}
 
+						if( component == null )
+							continue;
+
 						if (component is MonoBehaviour) {
 							var monoscript = MonoScript.FromMonoBehaviour((MonoBehaviour)component);
 							EditorGUILayout.ObjectField (monoscript, type, false);

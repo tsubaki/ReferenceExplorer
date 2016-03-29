@@ -25,7 +25,7 @@ namespace ReferenceExplorer
 		
 		private string search = string.Empty;
 		
-		[MenuItem("Window/ReferenceExploer/references")]
+		[MenuItem("Window/ReferenceExploer/References")]
 		static void Initialize ()
 		{
 			var window = EditorWindow.GetWindow<SceneReferenceViewer> ();

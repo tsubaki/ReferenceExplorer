@@ -143,6 +143,7 @@ public class ReferenceExplorerData
 			allComponentOverlap.AddRange (sceneObject.GetComponents<Component> ());
 		}
 		allComponents = allComponentOverlap
+				.Where( item => item != null)
 				.Where (item => !IgnoreComponents.IsNotAnalyticsTypes (item))
 				.Distinct ()
 				.ToList ();
@@ -164,7 +165,9 @@ public class ReferenceExplorerData
 	/// </summary>
 	static void CollectAllType ()
 	{
-		allComponentTypes = allComponents.Select (item => item.GetType ())
+		allComponentTypes = allComponents
+				.Where ( item => item != null)
+				.Select (item => item.GetType ())
 				.Distinct ()
 				.OrderBy (item => item.FullName)
          		.ToList ();

@@ -14,14 +14,19 @@ public class ObjectCollector
 	/// </summary>
 	/// <returns>The reference info.</returns>
 	/// <param name="component">Component.</param>
-	public static ReferenceInfo[] FindReferenceInfo (System.Object component, System.Object baseObject = null)
+	public static ReferenceInfo[] FindReferenceInfo (System.Object component, System.Object baseObject = null, int depth = 0)
 	{
 		if (baseObject == null)
 			baseObject = component;
 
 		List<ReferenceInfo> referenceInfoList = new List<ReferenceInfo> ();
-		
-		CollectFieldReference (component, ref referenceInfoList, baseObject);
+
+		depth ++;
+		if( depth > 5 ){
+			return referenceInfoList.ToArray ();
+		}
+
+		CollectFieldReference (component, ref referenceInfoList, baseObject, depth);
 		CollectEventReference (component, ref referenceInfoList);
 		CollectUnityEventReference (component, ref referenceInfoList, baseObject);
 
@@ -33,8 +38,11 @@ public class ObjectCollector
 	/// </summary>
 	/// <param name="component">Component.</param>
 	/// <param name="referenceInfoList">Reference info list.</param>
-	static void CollectFieldReference (System.Object component, ref List<ReferenceInfo> referenceInfoList, System.Object baseObject)
+	static void CollectFieldReference (System.Object component, ref List<ReferenceInfo> referenceInfoList, System.Object baseObject, int depth)
 	{
+
+		if( component == null )
+			return;
 		Type type = component.GetType ();
 		
 		foreach (var field in type.GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance |
@@ -64,12 +72,13 @@ public class ObjectCollector
 							referenceTarget = (System.Object)element
 						});
 					} else if (IgnoreComponents.IsNotAnalyticsTypes (element)) {
-						referenceInfoList.AddRange (FindReferenceInfo (element, baseObject));
+						referenceInfoList.AddRange (FindReferenceInfo (element, baseObject, depth));
 					}
 				}
 				continue;
 			} else if (value is System.Object) {
-				referenceInfoList.AddRange (FindReferenceInfo (value, baseObject));
+				
+				referenceInfoList.AddRange (FindReferenceInfo (value, baseObject, depth));
 				continue;
 			}
 		}
@@ -82,6 +91,9 @@ public class ObjectCollector
 	/// <param name="referenceInfoList">Reference info list.</param>
 	static void CollectEventReference (System.Object component, ref List<ReferenceInfo> referenceInfoList)
 	{
+		if( component == null )
+			return;
+		
 		Type type = component.GetType ();
 
 		foreach (var eventType in type.GetEvents()) {
@@ -122,6 +134,8 @@ public class ObjectCollector
 	/// <param name="baseObject">Base object.</param>
 	static void CollectUnityEventReference (System.Object component, ref List<ReferenceInfo> referenceInfoList, System.Object baseObject)
 	{
+		if( component == null )
+			return;
 		Type type = component.GetType ();
 		
 		foreach (var field in type.GetFields(
