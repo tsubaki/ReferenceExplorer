@@ -78,7 +78,7 @@ namespace ReferenceViewer
                         foreach (var subAssetData in assetData.subAssets)
                         {
 
-                            var type = Types.GetType(subAssetData.typeName, "UnityEngine.dll");
+							var type = System.Reflection.Assembly.Load("UnityEngine.dll").GetType(subAssetData.typeName);
 
                             if (subAssetData.guid == guid && type == selectedObject.GetType())
                             {
@@ -100,7 +100,7 @@ namespace ReferenceViewer
                     {
                         foreach (var subAssetData in assetData.subAssets)
                         {
-                            var type = Types.GetType(subAssetData.typeName, "UnityEngine.dll");
+							var type = System.Reflection.Assembly.Load("UnityEngine.dll").GetType(subAssetData.typeName);
                             var tex = AssetPreview.GetMiniTypeThumbnail(type);
 
                             var item =

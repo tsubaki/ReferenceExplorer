@@ -94,7 +94,7 @@ public class IgnoreComponents
 	{
 		typeof(UnityEngine.EventSystems.StandaloneInputModule),
 		typeof(Mesh), typeof(Material), typeof(MeshFilter), typeof(MeshRenderer),
-		typeof(string), typeof(NavMesh), typeof(Shader), typeof(AnimationCurve), typeof(Color), typeof(System.Collections.Hashtable)
+		typeof(string), typeof(UnityEngine.AI.NavMesh), typeof(Shader), typeof(AnimationCurve), typeof(Color), typeof(System.Collections.Hashtable)
 	};
 	
 	public static bool IsNotAnalyticsTypes (System.Object obj)
