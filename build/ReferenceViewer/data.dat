@@ -1,0 +1,168 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &1
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23ab6792f3dae4170a95384b2819a6e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  assetData:
+  - path: Assets/ReferenceExplorer
+    guid: 04d71283d36e8904ab04557d571aca9b
+    reference:
+    - 04d71283d36e8904ab04557d571aca9b
+    subAssets: []
+    sceneData: []
+  - path: Assets/ReferenceExplorer/Editor
+    guid: c534f6d77f7af43089d196465fa1ac9d
+    reference:
+    - c534f6d77f7af43089d196465fa1ac9d
+    subAssets: []
+    sceneData: []
+  - path: Assets/ReferenceExplorer/Editor/Window
+    guid: b81cd9194897b4ff4a9bafe71b222338
+    reference:
+    - b81cd9194897b4ff4a9bafe71b222338
+    subAssets: []
+    sceneData: []
+  - path: Assets/ReferenceExplorer/Editor/AssetReference
+    guid: 87e5cd9a764044e49b29a04bd1191931
+    reference:
+    - 87e5cd9a764044e49b29a04bd1191931
+    subAssets: []
+    sceneData: []
+  - path: Assets/ReferenceExplorer/Editor/ObjectComponentReference
+    guid: 41333c3dda6644869913ca13cdfe8760
+    reference:
+    - 41333c3dda6644869913ca13cdfe8760
+    subAssets: []
+    sceneData: []
+  - path: Assets/ReferenceExplorer/Editor/ObjectComponentReference/ReferenceExplorerUtility.cs
+    guid: 48031ea0b410c4b6f8ef2ab25766c414
+    reference:
+    - 48031ea0b410c4b6f8ef2ab25766c414
+    subAssets: []
+    sceneData: []
+  - path: Assets/ReferenceExplorer/Editor/Window/SceneReferenceViewer.cs
+    guid: b2602091d423344beaa42afdde32859c
+    reference:
+    - b2602091d423344beaa42afdde32859c
+    subAssets: []
+    sceneData: []
+  - path: Assets/ReferenceExplorer/Editor/ObjectComponentReference/CodeSearch.cs
+    guid: d2b707f19fb3d43adb24869addcb9525
+    reference:
+    - d2b707f19fb3d43adb24869addcb9525
+    subAssets: []
+    sceneData: []
+  - path: Assets/ReferenceExplorer/Editor/AssetReference/Data.cs
+    guid: 23ab6792f3dae4170a95384b2819a6e6
+    reference:
+    - 23ab6792f3dae4170a95384b2819a6e6
+    subAssets: []
+    sceneData: []
+  - path: Assets/ReferenceExplorer/Editor/Window/EditorUtility.cs
+    guid: 3f883cd34939f4a13a806bca554b10c5
+    reference:
+    - 3f883cd34939f4a13a806bca554b10c5
+    subAssets: []
+    sceneData: []
+  - path: Assets/ReferenceExplorer/Editor/AssetReference/CompareSelector.cs
+    guid: 8991d2947d1ae4b408f4e2c61a5bac59
+    reference:
+    - 8991d2947d1ae4b408f4e2c61a5bac59
+    subAssets: []
+    sceneData: []
+  - path: Assets/ReferenceExplorer/Editor/Window/SceneClassViewer.cs
+    guid: 38c66155a4a544cbfbc3f473b5bc4e91
+    reference:
+    - 38c66155a4a544cbfbc3f473b5bc4e91
+    subAssets: []
+    sceneData: []
+  - path: Assets/ReferenceExplorer/Editor/Window/AssetReferenceViewer.cs
+    guid: a9355ba51e3e64c73b5da5db9978712e
+    reference:
+    - a9355ba51e3e64c73b5da5db9978712e
+    subAssets: []
+    sceneData: []
+  - path: Assets/ReferenceExplorer/Editor/ObjectComponentReference/ReferenceExplorerData.cs
+    guid: 10938e46abd344d17914a90fda6397ac
+    reference:
+    - 10938e46abd344d17914a90fda6397ac
+    subAssets: []
+    sceneData: []
+  - path: Assets/ReferenceExplorer/Editor/AssetReference/Generate.cs
+    guid: e07e51672a9d642d78b9aeb444e7f622
+    reference:
+    - e07e51672a9d642d78b9aeb444e7f622
+    subAssets: []
+    sceneData: []
+  - path: Assets/ReferenceExplorer/Editor/ObjectComponentReference/ExplortReferenceMap.cs
+    guid: ececef671445d40ddac33b2faf601599
+    reference:
+    - ececef671445d40ddac33b2faf601599
+    subAssets: []
+    sceneData: []
+  - path: Assets/ReferenceExplorer/Editor/ObjectComponentReference/ObjectCollector.cs
+    guid: ffbebba8f4b4a475ea8b84c4cce9e99e
+    reference:
+    - ffbebba8f4b4a475ea8b84c4cce9e99e
+    subAssets: []
+    sceneData: []
+  - path: Assets/ReferenceExplorer/Editor/ObjectComponentReference/ObjectOrganize.cs
+    guid: ca9f516bbdc18433dbe100c6dc3a6245
+    reference:
+    - ca9f516bbdc18433dbe100c6dc3a6245
+    subAssets: []
+    sceneData: []
+  - path: Assets/ReferenceExplorer/Editor/ObjectComponentReference/CallbackData.cs
+    guid: 7ec823ced8b3143aaa2a4d496bb6b0f1
+    reference:
+    - 7ec823ced8b3143aaa2a4d496bb6b0f1
+    subAssets: []
+    sceneData: []
+  - path: Assets/ReferenceExplorer/Editor/ObjectComponentReference/Data.cs
+    guid: c2f13adf3c83d44af949dc0a88af7024
+    reference:
+    - c2f13adf3c83d44af949dc0a88af7024
+    subAssets: []
+    sceneData: []
+  - path: Assets/ReferenceExplorer/Editor/AssetReference/Creator.cs
+    guid: f95f3cdfe53c64f89a6e66649584369d
+    reference:
+    - f95f3cdfe53c64f89a6e66649584369d
+    subAssets: []
+    sceneData: []
+  - path: Assets/Sample.unity
+    guid: 369280f52bc956643924257e64bf6372
+    reference:
+    - 0000000000000000e000000000000000
+    - 0000000000000000f000000000000000
+    subAssets:
+    - guid: f5f67c52d1564df4a8936ccd202a3bd8
+      name: EventSystem
+      typeName: UnityEditor.MonoScript
+    - guid: f5f67c52d1564df4a8936ccd202a3bd8
+      name: StandaloneInputModule
+      typeName: UnityEditor.MonoScript
+    - guid: f5f67c52d1564df4a8936ccd202a3bd8
+      name: GraphicRaycaster
+      typeName: UnityEditor.MonoScript
+    - guid: f5f67c52d1564df4a8936ccd202a3bd8
+      name: Button
+      typeName: UnityEditor.MonoScript
+    - guid: f5f67c52d1564df4a8936ccd202a3bd8
+      name: Image
+      typeName: UnityEditor.MonoScript
+    - guid: f5f67c52d1564df4a8936ccd202a3bd8
+      name: Text
+      typeName: UnityEditor.MonoScript
+    - guid: f5f67c52d1564df4a8936ccd202a3bd8
+      name: CanvasScaler
+      typeName: UnityEditor.MonoScript
+    sceneData: []
